@@ -9,15 +9,27 @@ class Router implements RouterInterface
     private $uri;
 
     private $categories = [];
+    
     private $segments = [];
+    
     private $route = [];
+    
     private $param = [];
+    
+    private $path;
 
-    public function __construct()
+    public function __construct(string $controller, string $action, string $path)
     {
-        $this->segments['alias'] = '';
-        $this->segments['action'] = ACTION; // action по-умолчанию
-        $this->segments['controller'] = CONTROLLER;
+        $this->segments['alias'] = ''; 
+    
+        // action по-умолчанию
+        $this->segments['action'] = $action;
+
+        // controller по-умолчанию
+        $this->segments['controller'] = $controller;
+        
+        // Путь к маршрутам по-умолчанию
+        $this->path = $path;
     }
     
     // Запускаем роутинг
@@ -32,6 +44,24 @@ class Router implements RouterInterface
         }
     }
 
+    // Возвращает контроллер
+    public function getController() : string
+    {
+        return $this->segments['controller'];
+    }
+    
+    // Возвращает экшн
+    public function getAction() : string
+    {
+        return $this->segments['action'];
+    }
+    
+    // Возвращает алиас
+    public function getAlias() : string
+    {
+        $this->segments['alias'];
+    }
+    
     // Подготавливает запрос
     private function prepareRequest() : void
     {
@@ -57,12 +87,7 @@ class Router implements RouterInterface
 
         // Если маршруты не получены то подключаем роуты по-умолчанию
         if (empty(Route::controller())) {
-            require_once ROOT . '/app/Routes/default.php';
-        }
-
-        // Если контроллер не существует подключаем роуты для типов контента
-        if (!App::Config()->conExist(Route::controller())) {
-            require_once ROOT . '/app/Routes/content.php';
+            require_once ROOT . $this->path . 'default.php';
         }
 
         // Обрабатываем запрос для контроллера
@@ -113,7 +138,7 @@ class Router implements RouterInterface
     // Присваивает значения сегментов запроса
     private function assignSegments() : void
     {
-        $routes = generator($this->route);
+        $routes = $this->generator($this->route);
 
         $property = [];
 
@@ -132,6 +157,14 @@ class Router implements RouterInterface
 
         if (!empty($this->route)) {
             $this->segments = array_merge($this->segments, $this->route);
+        }
+    }
+    
+    // Создает генератор
+    private function generator(array $array)
+    {
+        foreach ($array as $key => $value) {
+            yield $key => $value;
         }
     }
 }
