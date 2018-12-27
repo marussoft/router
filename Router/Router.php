@@ -50,7 +50,7 @@ class Router implements RouterInterface
     {
         $routes_file = ROOT . '/app/Routes/' . $this->param[0] . '.php';
 
-        // Проверяем наличие файла маршрутов для запроса
+        // Проверяем наличие файла маршрутов для заnamespace Marussia\Components\Request;проса
         if (file_exists($routes_file)) {
             require_once($routes_file);
         }
