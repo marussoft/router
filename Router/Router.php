@@ -6,9 +6,7 @@ namespace Marussia\Components\Router;
 
 class Router implements RouterInterface
 {
-    private $uri;
-
-    private $categories = [];
+    private $uri = '';
     
     private $segments = [];
     
@@ -16,19 +14,11 @@ class Router implements RouterInterface
     
     private $param = [];
     
-    private $path;
+    private $path = '';
 
-    public function __construct(string $controller, string $action, string $path)
+    public function __construct(string $path)
     {
-        $this->segments['alias'] = ''; 
-    
-        // action по-умолчанию
-        $this->segments['action'] = $action;
-
-        // controller по-умолчанию
-        $this->segments['controller'] = $controller;
-        
-        // Путь к маршрутам по-умолчанию
+        // Путь к каталогу с маршрутами
         $this->path = $path;
     }
     
@@ -43,23 +33,10 @@ class Router implements RouterInterface
             $this->prepareRequest();
         }
     }
-
-    // Возвращает контроллер
-    public function getController() : string
-    {
-        return $this->segments['controller'];
-    }
     
-    // Возвращает экшн
-    public function getAction() : string
+    public function getRoute() : array
     {
-        return $this->segments['action'];
-    }
-    
-    // Возвращает алиас
-    public function getAlias() : string
-    {
-        $this->segments['alias'];
+        return $this->segments;
     }
     
     // Подготавливает запрос
@@ -78,7 +55,7 @@ class Router implements RouterInterface
     // Подготавливает маршруты для контроллеров
     private function prepareRoute() : void
     {
-        $routes_file = ROOT . '/app/Routes/' . $this->param[0] . '.php';
+        $routes_file = $this->path . $this->param[0] . '.php';
 
         // Проверяем наличие файла маршрутов для заnamespace Marussia\Components\Request;проса
         if (file_exists($routes_file)) {
@@ -87,7 +64,7 @@ class Router implements RouterInterface
 
         // Если маршруты не получены то подключаем роуты по-умолчанию
         if (empty(Route::controller())) {
-            require_once ROOT . $this->path . 'default.php';
+            require_once $this->path . 'default.php';
         }
 
         // Обрабатываем запрос для контроллера
@@ -113,21 +90,21 @@ class Router implements RouterInterface
         
         unset($this->param[0]);
 
-        if (Route::category()) {
-            $this->assignCategories();
+        if (Route::nesting()) {
+            $this->assignNesting();
         }
 
         $this->assignSegments();
     }
 
-    // Присваивает сегменты для категорий
-    private function assignCategories() : void
+    // Присваивает сегменты для вложенностей
+    private function assignNesting() : void
     {
         $property = [];
 
         foreach ($this->param as $key => $segment) {
             if (preg_match('(^[a-z0-9\-]+$)', $segment, $property)) {
-                $this->categories[] = $property[0];
+                $this->segments['nesting'] = $property[0];
                 unset($this->param[$key]);
                 continue;
             }

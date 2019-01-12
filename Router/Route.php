@@ -9,19 +9,19 @@ class Route
     public static $uri;
     private static $controller = '';
     private static $action = '';
-    private static $category;
+    private static $nesting;
     private static $alias;
     private static $routes;
     
     
-    public static function add(string $controller, string $action, string $route, array $routes = [], bool $cat = false, bool $alias = false) : void
+    public static function add(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
     {
         // Сравниваем $route из роутов с uri
         if (empty(static::$controller) && preg_match("($route)", static::$uri)) {
             static::$routes = $routes;
             static::$controller = $controller;
             static::$action = $action;
-            static::$category = $cat;
+            static::$nesting = $nesting;
             static::$alias = $alias;
         }
     }
@@ -41,9 +41,9 @@ class Route
         return static::$routes;
     }
     
-    public static function category()
+    public static function nesting()
     {
-        return static::$category;
+        return static::$nesting;
     }
     
     public static function alias()
