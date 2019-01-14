@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Marussia\Components\Router;
 
+use Marussia\Components\Router\Exeptions\Error404Exception as Error404Exception;
+
 class Router implements RouterInterface
 {
     private $uri = '';
@@ -23,13 +25,11 @@ class Router implements RouterInterface
     }
     
     // Запускаем роутинг
-    public function run($uri) : void
+    public function run(string $uri) : void
     {
-        // Получаем строку запроса
-        $this->uri = $uri;
-
         // Если не пусто то запускаем обработку, иначе отработает по умолчанию
-        if (!empty($this->uri)) {
+        if (!empty($uri)) {
+            $this->uri = $uri;
             $this->prepareRequest();
         }
     }
@@ -75,7 +75,7 @@ class Router implements RouterInterface
     private function makeRoute() : void
     {
         if (empty(Route::controller())) {
-            App::Template()->error404();
+            throw new Error404Exception($this->uri);
         }
 
         $this->route = Route::routes();
