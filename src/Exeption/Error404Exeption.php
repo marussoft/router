@@ -1,6 +1,6 @@
 <?php
 
-namespace Marussia\Components\Router\Exceptions;
+namespace Marussia\Router\Exception;
 
 class Error404Exception extends \Exception
 {

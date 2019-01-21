@@ -1,6 +1,6 @@
 <?php
 
-namespace Marussia\Components\Router;
+namespace Marussia\Router;
 
 interface RouterInterface
 {

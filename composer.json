@@ -1,0 +1,25 @@
+{
+    "name": "marussia/router",
+    "description": "Marussia router",
+    "license": "MIT",
+    "keywords": [
+        "router"
+    ],
+    "authors": [
+        {
+            "name": "Mikhail Ilinsky",
+            "email": "mail@milinsky.ru"
+        }
+    ],
+    "support": {
+        "docs": "https://docs.marussia.org/router/"
+    },
+    "require": {
+        "php": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Marussia\\Router\\": "src/"
+        }
+    }
+}

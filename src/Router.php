@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Marussia\Components\Router;
+namespace Marussia\Router;
 
-use Marussia\Components\Router\Exeptions\Error404Exception as Error404Exception;
+use Marussia\Router\Exeption\Error404Exception as Error404Exception;
 
 class Router implements RouterInterface
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Marussia\Components\Router;
+namespace Marussia\Router;
 
 class Route
 {
