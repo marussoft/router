@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Exeption\Error404Exception as Error404Exception;
+use Marussia\Router\Exception\Error404Exception as Error404Exception;
 
-class Router implements RouterInterface
+class Router
 {
     private $uri = '';
     
