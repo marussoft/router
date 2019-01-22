@@ -57,7 +57,7 @@ class Router
     {
         $routes_file = $this->path . $this->param[0] . '.php';
 
-        // Проверяем наличие файла маршрутов для заnamespace Marussia\Components\Request;проса
+        // Проверяем наличие файла маршрутов для запроса
         if (file_exists($routes_file)) {
             require_once($routes_file);
         }
