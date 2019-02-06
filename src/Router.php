@@ -17,12 +17,6 @@ class Router
     private $param = [];
     
     private $path = '';
-
-    public function __construct(string $path)
-    {
-        // Путь к каталогу с маршрутами
-        $this->path = $path;
-    }
     
     // Запускаем роутинг
     public function run(string $uri) : void
@@ -37,6 +31,12 @@ class Router
     public function getRoute() : array
     {
         return $this->segments;
+    }
+    
+    public function setRoutesPath(string $path) : void
+    {
+        // Путь к каталогу с маршрутами
+        $this->path = $path;
     }
     
     // Подготавливает запрос
