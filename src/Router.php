@@ -18,6 +18,13 @@ class Router
     
     private $path = '';
     
+    private $method = 'GET';
+    
+    public function setMethod(string $method) : void
+    {
+        $this->method = $method;
+    }
+    
     // Запускаем роутинг
     public function run(string $uri) : void
     {
@@ -46,7 +53,10 @@ class Router
         $this->param = explode('/', $this->uri);
 
         // Передаем uri для последующей обработки
-        Route::$uri = $this->uri;
+        Route::setUri($this->uri);
+        
+        // Передаем метод запроса
+        Route::setMethod();
 
         // Подготавливаем маршруты
         $this->prepareRoute();
