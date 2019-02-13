@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\Router\Exception\Error404Exception as Error404Exception;
+use Marussia\Router\RouterInterface as RouterInterface;
 
-class Router
+class Router implements RouterInterface
 {
     private $uri = '';
     
@@ -22,7 +23,8 @@ class Router
     
     public function setMethod(string $method) : void
     {
-        $this->method = $method;
+        // Передаем метод запроса
+        Route::setMethod($method);
     }
     
     // Запускаем роутинг
@@ -35,7 +37,7 @@ class Router
         }
     }
     
-    public function getRoute() : array
+    public function getMap() : array
     {
         return $this->segments;
     }
@@ -54,9 +56,6 @@ class Router
 
         // Передаем uri для последующей обработки
         Route::setUri($this->uri);
-        
-        // Передаем метод запроса
-        Route::setMethod();
 
         // Подготавливаем маршруты
         $this->prepareRoute();

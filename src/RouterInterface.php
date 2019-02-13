@@ -4,18 +4,15 @@ namespace Marussia\Router;
 
 interface RouterInterface
 {
-    public function __construct(string $controller, string $action, string $path)
+    public function setMethod(string $method) : void;
     
     // Запускаем роутинг
-    public function run($uri) : void
-
-    // Возвращает контроллер
-    public function getController() : string
-
-    // Возвращает экшн
-    public function getAction() : string
-
-    // Возвращает алиас
-    public function getAlias() : string
+    public function run(string $uri) : void;
+    
+    // Возвращает полученные данные
+    public function getMap() : array;
+    
+    // Путь к каталогу с маршрутами
+    public function setRoutesPath(string $path) : void;
 
 }
