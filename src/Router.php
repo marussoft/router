@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Exception\Error404Exception as Error404Exception;
-use Marussia\Router\RouterInterface as RouterInterface;
+use Marussia\Router\Exceptions\RouteNotFoundException;
 
-class Router implements RouterInterface
+class Router
 {
     private $uri = '';
     
@@ -19,7 +18,7 @@ class Router implements RouterInterface
     
     private $path = '';
     
-    private $method = 'GET';
+    private $method = '';
     
     public function setMethod(string $method) : void
     {
@@ -84,7 +83,7 @@ class Router implements RouterInterface
     private function makeRoute() : void
     {
         if (empty(Route::controller())) {
-            throw new Error404Exception($this->uri);
+            throw new RouteNotFoundException($this->uri);
         }
 
         $this->route = Route::routes();
