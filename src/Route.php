@@ -6,94 +6,54 @@ namespace Marussia\Router;
 
 class Route
 {
-    private static $uri;
-    private static $controller = '';
-    private static $action = '';
-    private static $nesting;
-    private static $alias;
-    private static $routes;
-    private static $method;
+    public $name;
     
+    public $nesting;
     
-    public static function get(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public $handler;
+    
+    public $action;
+    
+    public $alias;
+    
+    public $method;
+    
+    public $conditions;
+    
+    public function __construct(string $method)
     {
-        if (static::$method === 'GET') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
-        }
+        $this->method = $method;
     }
     
-    public static function post(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public function handler(string $handler)
     {
-        if (static::$method === 'POST') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
-        }
+        $this->handler = $handler;
     }
     
-    public static function put(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public function action(string $action)
     {
-        if (static::$method === 'PUT') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
-        }
+        $this->action = $action;
     }
     
-    public static function delete(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public function alias($alias)
     {
-        if (static::$method === 'DELETE') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
-        }
+        $this->alias = $alias;
     }
     
-    public static function patch(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public function nesting($nesting)
     {
-        if (static::$method === 'PATCH') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
-        }
-    }
-
-    public static function controller()
-    {
-        return static::$controller;
+        $this->nesting = $nesting;
     }
     
-    public static function action()
+    public function where(array $conditions) : self
     {
-        return static::$action;
+        $this->conditions = $conditions;
+        return $this;
     }
     
-    public static function routes()
+    public function name(string $name) : self
     {
-        return static::$routes;
-    }
-    
-    public static function nesting()
-    {
-        return static::$nesting;
-    }
-    
-    public static function alias()
-    {
-        return static::$alias;
-    }
-    
-    public static function setMethod(string $method)
-    {
-        static::$method = $method;
-    }
-    
-    public static function setUri(string $uri)
-    {
-        static::$uri = $uri;
-    }
-    
-    private static function matched(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false)
-    {
-        // Сравниваем $route с uri
-        if (empty(static::$controller) && preg_match("($route)", static::$uri)) {
-            static::$routes = $routes;
-            static::$controller = $controller;
-            static::$action = $action;
-            static::$nesting = $nesting;
-            static::$alias = $alias;
-        }
+        $this->name = $name;
+        return $this;
     }
 }
