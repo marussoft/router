@@ -6,14 +6,14 @@ namespace Marussia\Router;
 
 class Routefacade
 {
-    private $storage;
+    private static $storage;
     
-    private $factory;
+    private static $factory;
 
     public function __construct(Storage $storage, RouteFactory $factory)
     {
-        $this->storage = $storage;
-        $this->factory = $factory;
+        static::$storage = $storage;
+        static::$factory = $factory;
     }
 
     public static function get()
