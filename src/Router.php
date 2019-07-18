@@ -5,22 +5,21 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\DependencyInjection\Container;
+use Marussia\Router\Contracts\StorageInterface;
 
 class Router
 {
-    private $builder;
-    
     private $resolver;
     
     private $mapper;
 
-    public function __construct(RouteBuilder $builder, Resolver $resolver, Mapper $mapper)
+    public function __construct(StorageInterface $storage, Resolver $resolver, Mapper $mapper)
     {
-        $this->builder = $builder;
         $this->resolver = $resolver;
         $this->mapper = $mapper;
+        RouteBuilder::setStorage($storage);
     }
-
+    
     public statis function create() : self
     {
         $container = new Container();
@@ -28,8 +27,9 @@ class Router
         return $container->instance(static::class);
     }
     
-    public function route() : RouteBuilder
+    public function setStorage(StorageInterface $storage) : void
     {
-        return $this->builder;
+        RouteBuilder::setStorage($storage);
+        $this->mapper->setStorage($storage);
     }
 }

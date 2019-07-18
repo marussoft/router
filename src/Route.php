@@ -20,34 +20,46 @@ class Route
     
     public $conditions;
     
-    public function __construct(string $method)
+    public $where;
+    
+    public function __construct(string $method, string $condition)
     {
         $this->method = $method;
+        $this->condition = $condition;
+    }
+    
+    public static function create(string $method, string $condition)
+    {
+        return new self($method, $condition);
     }
     
     public function handler(string $handler)
     {
         $this->handler = $handler;
+        return $this;
     }
     
     public function action(string $action)
     {
         $this->action = $action;
+        return $this;
     }
     
     public function alias($alias)
     {
         $this->alias = $alias;
+        return $this;
     }
     
     public function nesting($nesting)
     {
         $this->nesting = $nesting;
+        return $this;
     }
     
-    public function where(array $conditions) : self
+    public function where(array $where) : self
     {
-        $this->conditions = $conditions;
+        $this->where = $where;
         return $this;
     }
     

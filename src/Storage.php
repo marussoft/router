@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\Router\Exceptions\RouteIsExistException;
+use Marussia\Router\Contracts\StorageInterface;
 
-class Storage
+class Storage implements StorageInterface
 {
     private $routes = [
         'get' => [],
@@ -42,7 +43,7 @@ class Storage
         return $this->byMethod[$method];
     }
     
-    public function get(string $routeName) : Route
+    public function getByName(string $routeName) : Route
     {
         return $this->routes[$this->byName[$routeName]][$routeName];
     }
