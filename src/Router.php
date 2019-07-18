@@ -4,50 +4,32 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
+use Marussia\DependencyInjection\Container;
+
 class Router
 {
-    private static $storage;
+    private $builder;
     
-    private static $factory;
+    private $resolver;
+    
+    private $mapper;
 
-    public function __construct(Storage $storage, RouteFactory $factory)
+    public function __construct(RouteBuilder $builder, Resolver $resolver, Mapper $mapper)
     {
-        static::$storage = $storage;
-        static::$factory = $factory;
+        $this->builder = $builder;
+        $this->resolver = $resolver;
+        $this->mapper = $mapper;
     }
 
-    public static function get()
+    public statis function create() : self
     {
-        $route = Factory::create('get');
-        static::$storage->register($route);
-        return $route;
+        $container = new Container();
+        $container->setClassMap(require 'class_map.php');
+        return $container->instance(static::class);
     }
     
-    public static function post()
+    public function route() : RouteBuilder
     {
-        $route = Factory::create('post');
-        static::$storage->register($route);
-        return $route;
-    }
-    
-    public static function put()
-    {
-        $route = Factory::create('put');
-        static::$storage->register($route);
-        return $route;
-    }
-    
-    public static function patch()
-    {
-        $route = Factory::create('patch');
-        static::$storage->register($route);
-        return $route;
-    }
-    
-    public static function delete()
-    {
-        $route = Factory::create('delete');
-        static::$storage->register($route);
-        return $route;
+        return $this->builder;
     }
 }
