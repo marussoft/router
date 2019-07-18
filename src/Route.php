@@ -22,7 +22,7 @@ class Route
     
     public $where;
     
-    public function __construct(string $method, string $condition)
+    public function __construct(string $method, string $condition) // технический долг. В conditiob нужно класть готовую регулярку
     {
         $this->method = $method;
         $this->condition = $condition;
