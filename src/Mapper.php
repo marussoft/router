@@ -13,19 +13,31 @@ class Mapper
     
     private $routesDirPath;
     
+    private $uri;
+    
     public function __construct(StorageInterface $storage)
     {
         $this->storage = $storage;
     }
     
-    public function setStorage(StorageInterface $storage)
+    public function setStorage(StorageInterface $storage) : void
     {
         $this->storage = $storage;
     }
     
+    public function setUri(string $uri) : void
+    {
+        $this->uri = $uri;
+    }
+    
+    public function setMethod(string $method) : void
+    {
+        $this->method = strtolower($method);
+    }
+    
     public function getRoute(string $method, string $uri) :? Route
     {
-        $routes = $this->storage->getRoute($method);
+        $routes = $this->storage->getRoutes($method);
         
         foreach ($routes as $route) {
             if (preg_match($route->condition, $uri)) {
@@ -34,7 +46,7 @@ class Mapper
         }
     }
     
-    public function getUrl(string $routeName, array $params) : string
+    public function getUrl(string $routeName, array $params = []) : string
     {
         if ($this->storage->has($routeName)) {
             $route = $this->storage->get($routeName);

@@ -27,9 +27,32 @@ class Router
         return $container->instance(static::class);
     }
     
-    public function setStorage(StorageInterface $storage) : void
+    public function setStorage(StorageInterface $storage) : self
     {
         RouteBuilder::setStorage($storage);
         $this->mapper->setStorage($storage);
+        return $this;
+    }
+    
+    public function setUrl(string $uri) : self
+    {
+        $this->mapper->setUri($uri);
+        return $this;
+    }
+    
+    public function setMethod(string $method) : self
+    {
+        $this->mapper->setMethod($method);
+        return $this;
+    }
+    
+    public function startRouting() : Result
+    {
+        return $this->resolver->startRouting();
+    }
+    
+    public function getUrl(string $routeName, array $params = [])
+    {
+        return $this->mapper->getUrl($routeName, $params);
     }
 }
