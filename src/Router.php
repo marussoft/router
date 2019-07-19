@@ -20,9 +20,9 @@ class Router
         RouteBuilder::setStorage($storage);
     }
     
-    public statis function create() : self
+    public static function create() : self
     {
-        $container = new Container();
+        $container = Container::create();
         $container->setClassMap(require 'class_map.php');
         return $container->instance(static::class);
     }

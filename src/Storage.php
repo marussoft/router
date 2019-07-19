@@ -43,7 +43,7 @@ class Storage implements StorageInterface
         return $this->byMethod[$method];
     }
     
-    public function getByName(string $routeName) : Route
+    public function get(string $routeName) : Route
     {
         return $this->routes[$this->byName[$routeName]][$routeName];
     }
