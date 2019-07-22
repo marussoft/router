@@ -25,14 +25,9 @@ class Mapper
         $this->storage = $storage;
     }
     
-    public function setUri(string $uri) : void
+    public function setRoutesDirPath(string $dirPath)
     {
-        $this->uri = $uri;
-    }
-    
-    public function setMethod(string $method) : void
-    {
-        $this->method = strtolower($method);
+        $this->routesDirPath = $dirPath;
     }
     
     public function getRoute(string $method, string $uri) :? Route

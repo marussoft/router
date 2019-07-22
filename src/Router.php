@@ -27,6 +27,11 @@ class Router
         return $container->instance(static::class);
     }
     
+    public function setRoutesDirPath(string $dirPath)
+    {
+        $this->mapper->routesDirPath = $dirPath;
+    }
+    
     public function setStorage(StorageInterface $storage) : self
     {
         RouteBuilder::setStorage($storage);
@@ -36,13 +41,13 @@ class Router
     
     public function setUrl(string $uri) : self
     {
-        $this->mapper->setUri($uri);
+        $this->resolver->setUri($uri);
         return $this;
     }
     
     public function setMethod(string $method) : self
     {
-        $this->mapper->setMethod($method);
+        $this->resolver->setMethod($method);
         return $this;
     }
     
