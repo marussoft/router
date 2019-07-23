@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-class Result implements \ArrayAccess
+class Result
 {
-    protected $status = false;
+    public $status = false;
 
     public $handler = '';
     
@@ -14,8 +14,13 @@ class Result implements \ArrayAccess
     
     public $attributes = [];
     
-    public function status() : bool
+    public function __construct(bool $status)
     {
-        return $this->status;
+        $this->status = $status;
+    }
+    
+    public static function create(bool $status) : self
+    {
+        return new static($status);
     }
 }

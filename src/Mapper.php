@@ -15,7 +15,7 @@ class Mapper
     
     private $uri;
     
-    public function __construct(StorageInterface $storage)
+    public function __construct(Storage $storage)
     {
         $this->storage = $storage;
     }
@@ -35,10 +35,14 @@ class Mapper
         $routes = $this->storage->getRoutes($method);
         
         foreach ($routes as $route) {
+            echo $route->condition;
+            echo '<br>';
+            echo $uri;
             if (preg_match($route->condition, $uri)) {
                 return $route;
             }
         }
+        return null;
     }
     
     public function getUrl(string $routeName, array $params = []) : string

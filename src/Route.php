@@ -28,30 +28,30 @@ class Route
         $this->condition = $condition;
     }
     
-    public static function create(string $method, string $condition)
+    public static function create(string $method, string $condition) : self
     {
         return new self($method, $condition);
     }
     
-    public function handler(string $handler)
+    public function handler(string $handler) : self
     {
         $this->handler = $handler;
         return $this;
     }
     
-    public function action(string $action)
+    public function action(string $action) : self
     {
         $this->action = $action;
         return $this;
     }
     
-    public function alias($alias)
+    public function alias($alias) : self
     {
         $this->alias = $alias;
         return $this;
     }
     
-    public function nesting($nesting)
+    public function nesting($nesting) : self
     {
         $this->nesting = $nesting;
         return $this;

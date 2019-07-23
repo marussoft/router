@@ -29,13 +29,7 @@ class Resolver
     
     public function startRouting(string $method, string $uri)
     {
-        $this->segments = explode('/', $uri);
-        
-        if (count($this->segments) > 1) {
-            $this->mapper->plugRoutes();
-        }
-        
-        $route = $this->mapper->getRoute();
+
     }
 }
  

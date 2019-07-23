@@ -5,15 +5,22 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\DependencyInjection\Container;
-use Marussia\Router\Contracts\StorageInterface;
 
 class Router
 {
     private $resolver;
     
     private $mapper;
+    
+    private $routesDirPath = '';
+    
+    private $uri = '';
+    
+    private $method = '';
+    
+    private const ROUTE_FILE_NAME = 'default';
 
-    public function __construct(StorageInterface $storage, Resolver $resolver, Mapper $mapper)
+    public function __construct(Storage $storage, Resolver $resolver, Mapper $mapper)
     {
         $this->resolver = $resolver;
         $this->mapper = $mapper;
@@ -23,41 +30,79 @@ class Router
     public static function create() : self
     {
         $container = Container::create();
-        $container->setClassMap(require 'class_map.php');
         return $container->instance(static::class);
     }
     
-    public function setRoutesDirPath(string $dirPath)
+    public function setRoutesDirPath(string $dirPath) : self
     {
-        $this->mapper->routesDirPath = $dirPath;
-    }
-    
-    public function setStorage(StorageInterface $storage) : self
-    {
-        RouteBuilder::setStorage($storage);
-        $this->mapper->setStorage($storage);
+        $this->routesDirPath = $dirPath;
         return $this;
     }
     
-    public function setUrl(string $uri) : self
+    public function setUri(string $uri) : self
     {
-        $this->resolver->setUri($uri);
+        $this->uri = $uri;
         return $this;
     }
     
     public function setMethod(string $method) : self
     {
-        $this->resolver->setMethod($method);
+        $this->method = strtolower($method);
+        return $this;
+    }
+    
+    public function setHost(string $host) : self
+    {
+        $this->host = $host;
         return $this;
     }
     
     public function startRouting() : Result
     {
-        return $this->resolver->startRouting();
+        $this->prepareRoutes();
+    
+        $route = $this->mapper->getRoute($this->method, $this->uri);
+
+        if ($route === null) {
+            return Result::create(false);
+        }
+        
+        return $this->resolver->resolve($route);
     }
     
-    public function getUrl(string $routeName, array $params = [])
+    // Возвращает полный URL по имени роута // Допилить в последнюю очередь
+    public function getUrl(string $routeName, array $params = []) :? string
     {
+        // Часть перенести сюда из mapper (подключение файлов роутов)
         return $this->mapper->getUrl($routeName, $params);
+    }
+    
+    private function prepareRoutes()
+    {
+        if (empty($this->uri)) {
+            throw new \Exception('Uri is not seted');
+        }
+        
+        if (empty($this->method)) {
+            throw new \Exception('Method is not seted');
+        }
+        
+        if (empty($this->routesDirPath)) {
+            throw new \Exception('Routes directory path is not seted');
+        }
+        
+        $segments = explode('/', $this->uri);
+        
+        $this->plugRoutes($segments[0]);
+    }
+    
+    // Переделать на доменное исключение
+    private function plugRoutes($routesFileName)
+    {
+//         try {
+            require_once $this->routesDirPath . $routesFileName . '.php';
+//         } catch (\Throwable $e) {
+//             require_once $this->routesDirPath . self::ROUTE_FILE_NAME . '.php';
+//         }
     }
 }
