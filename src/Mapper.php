@@ -12,6 +12,10 @@ class Mapper
     
     private $method;
     
+    private $pattern;
+    
+    private $conditions;
+    
     public function setUri(string $uri) : self
     {
         $this->uri = $uri;
@@ -24,40 +28,20 @@ class Mapper
         return $this;
     }
     
-    public function getRoute(string $method, string $uri) :? Route
+    // Метод которыы будет стоять в конце каждой цепочки и собирать matched
+    public function match() : void
     {
-        $routes = $this->storage->getRoutes($method);
-        
-        foreach ($routes as $route) {
-            echo $route->condition;
-            echo '<br>';
-            echo $uri;
-            if (preg_match($route->condition, $uri)) {
-                return $route;
-            }
+        if (preg_match($condition, $uri)) {
+            
         }
-        return null;
     }
     
     public function getUrl(string $routeName, array $params = []) : string
     {
-        if ($this->storage->has($routeName)) {
-            $route = $this->storage->get($routeName);
-        } else {
-            try {
-                require_once $this->routesDirPath . array_shift(explode('.', $routeName));
-            } catch (\Throwable $e) {
-                throw $e;
-            }
-            
-            if (!$this->storage->has($routeName)) {
-                throw new RouteIsNotFoundForNameException($routeName);
-            }
-        }
-        return $this->buildUrl($route, $params);
+
     }
     
-    private function buildUrl(Route $route, array $params) : string
+    private function buildUrl(Matched $matched, array $params) : string
     {
     
     }
