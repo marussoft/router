@@ -5,29 +5,23 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\Router\Exceptions\RouteIsNotFoundForNameException;
-use Marussia\Router\Contracts\StorageInterface;
 
 class Mapper
 {
-    private $storage;
-    
-    private $routesDirPath;
-    
     private $uri;
     
-    public function __construct(Storage $storage)
+    private $method;
+    
+    public function setUri(string $uri) : self
     {
-        $this->storage = $storage;
+        $this->uri = $uri;
+        return $this;
     }
     
-    public function setStorage(StorageInterface $storage) : void
+    public function setMethod(string $method) : self
     {
-        $this->storage = $storage;
-    }
-    
-    public function setRoutesDirPath(string $dirPath)
-    {
-        $this->routesDirPath = $dirPath;
+        $this->method = strtolower($method);
+        return $this;
     }
     
     public function getRoute(string $method, string $uri) :? Route
