@@ -12,9 +12,9 @@ class Mapper
     
     private $method;
     
-    private $pattern;
+    private $fillable;
     
-    private $conditions;
+    private $matched = null;
     
     public function setUri(string $uri) : self
     {
@@ -28,11 +28,33 @@ class Mapper
         return $this;
     }
     
+    public function route(string $method, string $pattern)
+    {
+        $this->fillable['method'] = $method;
+        $this->fillable['pattern'] = $pattern;
+    }
+    
+    public function where(array $where)
+    {
+        if (!preg_match('(\{\$[a-z]+\})', $this->fillable['pattern'])) {
+            throw new PlaceholdersForPatternNotFound($this->fillable['pattern']);
+        }
+    
+        foreach($where as $key => $condition) {
+            $this->fillable['condition'] = str_replace('{' . $key . '}', $condition, $this->fillable['pattern']);
+        }
+    }
+    
+    public function name(string $name)
+    {
+        $this->fillable['name'] = $name;
+    }
+    
     // Метод которыы будет стоять в конце каждой цепочки и собирать matched
     public function match() : void
     {
-        if (preg_match($condition, $uri)) {
-            
+        if (preg_match($this->fillable['condition'], $this->uri)) {
+            $matched = Matched::create();
         }
     }
     

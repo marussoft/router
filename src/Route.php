@@ -6,7 +6,7 @@ namespace Marussia\Router;
 
 class Route
 {
-    private static $mapper;
+    private static $mapper = null;
     
     public static function setMapper(Mapper $mapper)
     {
@@ -15,9 +15,16 @@ class Route
     
     public static function get(string $pattern)
     {
-        static::$mapper->match('get', $pattern);
-        return ststic::$mapper;
+        if (is_null(static::$mapper)) {
+            throw new \Exception('Router is not initialized');
+        }
+        
+        static::$mapper->route('get', $pattern);
+        return static::$mapper;
     }
     
-
+    public static function getUrl()
+    {
+    
+    }
 }
