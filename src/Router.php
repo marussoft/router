@@ -20,11 +20,11 @@ class Router
     
     private const ROUTE_FILE_NAME = 'default';
 
-    public function __construct(Storage $storage, Resolver $resolver, Mapper $mapper)
+    public function __construct(Resolver $resolver, Mapper $mapper, UrlGenerator $generator)
     {
-        $this->resolver = $resolver;
-        $this->mapper = $mapper;
-        RouteBuilder::setStorage($storage);
+//         $this->resolver = $resolver;
+//         $this->mapper = $mapper;
+//         RouteBuilder::setStorage($storage);
     }
     
     public static function create() : self
