@@ -10,13 +10,9 @@ class Matched
     
     private $pattern;
     
-    private $nesting;
-    
     private $handler;
     
     private $action;
-    
-    private $alias;
     
     private $method;
     
@@ -24,12 +20,7 @@ class Matched
     
     private $where;
     
-    public function __construct() 
-    {
-
-    }
-    
-    public static function create() : self
+    public static function create(array $fillable) : self
     {
         return new static();
     }

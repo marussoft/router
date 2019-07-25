@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Exceptions\RouteIsNotFoundForNameException;
 use Marussia\Request\Request;
 
 class Mapper
@@ -48,6 +47,24 @@ class Mapper
         return $this;
     }
     
+    public function handler(string $handler) : self
+    {
+        if (!is_null($this->matched)) {
+            return $this;
+        }
+        $this->fillable['handler'] = $handler;
+        return $this;
+    }
+    
+    public function action(string $action)
+    {
+        if (!is_null($this->matched)) {
+            return $this;
+        }
+        $this->fillable['action'] = $action;
+        return $this;
+    }
+    
     // Метод который должен стоять в конце каждой цепочки и собирать matched
     public function match() : void
     {
@@ -76,8 +93,12 @@ class Mapper
     
     private function checkErrors()
     {
-        if (!empty($this->fillable['where']) && !preg_match('(\{\$[a-z]+\})', $this->fillable['pattern'])) {
+        if (isset($this->fillable['where']) && !preg_match('(\{\$[a-z]+\})', $this->fillable['pattern'])) {
             throw new PlaceholdersForPatternNotFound($this->fillable['pattern']);
+        }
+        
+        if (!isset($this->fillable['handler'])) {
+            throw new HandlerIsNotSetedException($this->fillable['pattern']);
         }
     }
 }
