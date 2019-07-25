@@ -9,23 +9,25 @@ use Marussia\DependencyInjection\Container;
 class Router
 {
     private $resolver;
+    
+    private $mapper;
 
     public function __construct(Resolver $resolver, Mapper $mapper, UrlGenerator $urlGenerator)
     {
         $this->resolver = $resolver;
-        Route::setMapper($mapper);
+        $this->mapper = $mapper;
         Url::setUrlGenerator($urlGenerator);
     }
     
     public static function create() : self
     {
         $container = Container::create();
-        return $container->instance(static::class);;
+        return $container->instance(static::class);
     }
     
     public function setRoutesDirPath(string $dirPath) : self
     {
-        $this->resolver->routesDirPath = $dirPath;
+        Route::routesDirPath($dirPath);
         return $this;
     }
     

@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\Router\Exceptions\RouteNotFoundException;
-use Marussia\Request\Request;
 
 class Resolver
 {
-    public $routesDirPath;
-
     private $mapper;
     
     private $request;
@@ -18,13 +15,12 @@ class Resolver
     private $segments = [];
     
     private $matched;
-    
-    private const ROUTE_FILE_NAME = 'default';
 
     public function __construct(Request $request, Mapper $mapper)
     {
         $this->mapper = $mapper;
         $this->request = $request;
+        Route::setHandler($mapper);
     }
     
     public function resolve() : Result
@@ -32,16 +28,6 @@ class Resolver
         $this->prepareRoutes();
         
         return $this->buildResult();
-    }
-    
-    // @todo Переделать на доменное исключение
-    public function plugRoutes($routesFileName)
-    {
-        try {
-            require $this->routesDirPath . $routesFileName . '.php';
-        } catch (\Throwable $e) {
-            require $this->routesDirPath . self::ROUTE_FILE_NAME . '.php';
-        }
     }
     
     private function buildResult() : Result
@@ -66,7 +52,7 @@ class Resolver
         
         $this->segments = explode('/', $this->request->getUri());
         
-        $this->plugRoutes($this->segments[0]);
+        Route::plug($this->segments[0]);
     }
     
     private function assignPlaceholders(array $where, string $pattern) : array

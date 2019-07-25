@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Request\Request;
-
-class Mapper
+class Mapper implements RouteHandlerInterface
 {
     private $request;
 
@@ -71,10 +69,12 @@ class Mapper
         $this->checkErrors();
     
         if (!is_null($this->matched)) {
+            $this->matched = [];
             return;
         }
         
         if ($this->request->getMethod() !== $this->fillable['method']) {
+            $this->matched = [];
             return;
         }
     
@@ -86,6 +86,7 @@ class Mapper
         }
         
         if (!preg_match($this->fillable['condition'], $this->request->getUri())) {
+            $this->matched = [];
             return;
         }
         $this->matched = $matched = Matched::create($this->fillable);
