@@ -8,9 +8,9 @@ class Route
 {
     private static $handler = null;
     
-    private static const ROUTE_FILE_NAME = 'default';
-    
     private static $routesDirPath = null;
+    
+    private static const ROUTE_FILE_NAME = 'default';
     
     public static function setHandler(RouteHandlerInterface $handler)
     {
@@ -67,9 +67,9 @@ class Route
     public static function plug(string $routesFileName)
     {
         try {
-            require $this->routesDirPath . $routesFileName . '.php';
+            require static::$routesDirPath . $routesFileName . '.php';
         } catch (\Throwable $e) {
-            require $this->routesDirPath . self::ROUTE_FILE_NAME . '.php';
+            require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
         }
     }
     
