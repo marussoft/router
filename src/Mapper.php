@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
+use Marussia\Router\Contracts\RouteHandlerInterface;
+
 class Mapper implements RouteHandlerInterface
 {
     private $request;
@@ -19,6 +21,7 @@ class Mapper implements RouteHandlerInterface
     
     public function route(string $method, string $pattern) : self
     {
+        $this->matched = null;
         if (!is_null($this->matched)) {
             return $this;
         }
@@ -54,7 +57,7 @@ class Mapper implements RouteHandlerInterface
         return $this;
     }
     
-    public function action(string $action)
+    public function action(string $action) : self
     {
         if (!is_null($this->matched)) {
             return $this;
@@ -69,27 +72,40 @@ class Mapper implements RouteHandlerInterface
         $this->checkErrors();
     
         if (!is_null($this->matched)) {
-            $this->matched = [];
             return;
         }
+
+        if (!$this->request->isMethod(strtoupper($this->fillable['method']))) {
+            return;
+        }
+   
+        $pattern = $this->fillable['pattern'];
         
-        if ($this->request->getMethod() !== $this->fillable['method']) {
-            $this->matched = [];
-            return;
-        }
-    
         // @todo добавить проверку на существование плейсхолдера с выбросом исключения (противоречит $this->checkErrors)
         if (!empty($this->fillable['where'])) {
             foreach($this->fillable['where'] as $key => $condition) {
-                $this->fillable['condition'] = str_replace('{$' . $key . '}', $condition, $this->fillable['pattern']);
+                $pattern = str_replace('{$' . $key . '}', $condition, $pattern);
             }
         }
-        
-        if (!preg_match($this->fillable['condition'], $this->request->getUri())) {
-            $this->matched = [];
+
+        if (!preg_match("(^$pattern$)", $this->request->getUri())) {
             return;
         }
-        $this->matched = $matched = Matched::create($this->fillable);
+
+        $this->matched = Matched::create($this->fillable);
+    }
+    
+    public function isMatched() : bool
+    {
+        if (is_null($this->matched)) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function getMatched() : Matched
+    {
+        return $this->matched;
     }
     
     private function checkErrors()

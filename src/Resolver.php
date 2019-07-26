@@ -36,55 +36,40 @@ class Resolver
             return Result::create(false);
         }
         
-        $matched = $this->getMatched();
+        $matched = $this->mapper->getMatched();
         
         $result = Result::create(true);
         $result->handler = $matched->handler;
         $result->action = $matched->action;
-        $result->attributes = $this->assignPlaceholders($matched->where, $matched->pattern);
+        if (!empty($matched->where)) {
+            $result->attributes = $this->assignAttributes($matched->where, $matched->pattern);
+        }
+        return $result;
     }
     
     private function prepareRoutes()
     {
-        if (empty($this->routesDirPath)) {
-            throw new \Exception('Routes directory path is not seted');
-        }
-        
         $this->segments = explode('/', $this->request->getUri());
         
         Route::plug($this->segments[0]);
     }
     
-    private function assignPlaceholders(array $where, string $pattern) : array
+    private function assignAttributes(array $where, string $pattern)
     {
-        $params = function () use ($where) {
-            foreach ($where as $key => $value) {
-                yield $key => $value;
-            }
-        };
+        $segments = explode('/', $pattern);
         
         $attributes = [];
-        
-        $patternSegments = explode('/', $pattern);
-        
-        foreach ($patternSegments as $key => $segment) {
+    
+        foreach ($where as $key => $value) {
+            $placeholder = str_replace($key, '{$' . $key . '}', $key);
             
-            $value = $params->current();
-            $name = $params->key();
+            $segmentKey = array_search($placeholder, $segments);
             
-            $placeholder = str_replace('{$' . $name . '}');
-            
-            if ($placeholder !== $segment) {
-                continue;
-            }
-            
-            $attribute = $this->segments[$key];
+            $attribute = $this->segments[$segmentKey];
             
             if (preg_match("($value)", $attribute, $property)) {
-                $attributes[$name] = $property[0];
-                $params->next();
+                $attributes[$key] = $property[0];
             }
-            
         }
         return $attributes;
     }

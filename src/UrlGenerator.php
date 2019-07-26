@@ -6,13 +6,6 @@ namespace Marussia\Router;
 
 class UrlGenerator
 {
-    private $resolver;
-
-    public function __construct(Resolver $resolver)
-    {
-        $this->resolver = $resolver;
-    }
-
     public function getUrl(string $routeName, array $params = []) : string
     {
 

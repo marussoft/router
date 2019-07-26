@@ -22,27 +22,27 @@ class Request implements RequestInterface
     }
 
 
-    public function getUri()
+    public function getUri() : string
     {
         return $this->uri;
     }
     
-    public function getMethod()
+    public function getMethod() : string
     {
         return $this->data['REQUEST_METHOD'];
     }
     
-    public function isMethod(string $method)
+    public function isMethod(string $method) : bool
     {
         return $this->data['REQUEST_METHOD'] === strtoupper($method);
     }
     
-    public function getHost()
+    public function getHost() : string
     {
     
     }
     
-    public function getProtocol()
+    public function getProtocol() : string
     {
     
     }

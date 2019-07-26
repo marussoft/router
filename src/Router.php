@@ -12,7 +12,7 @@ class Router
     
     private $mapper;
 
-    public function __construct(Resolver $resolver, Mapper $mapper, UrlGenerator $urlGenerator)
+    public function __construct(Resolver $resolver, UrlGenerator $urlGenerator, Mapper $mapper)
     {
         $this->resolver = $resolver;
         $this->mapper = $mapper;
@@ -27,13 +27,13 @@ class Router
     
     public function setRoutesDirPath(string $dirPath) : self
     {
-        Route::routesDirPath($dirPath);
+        Route::setRoutesDirPath($dirPath);
         return $this;
     }
     
     public function startRouting() : Result
     {
-        return $this->resolver->resolve($route);
+        return $this->resolver->resolve();
     }
 
 }

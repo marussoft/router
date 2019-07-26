@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
+use Marussia\Router\Contracts\RouteHandlerInterface;
+
 class Route
 {
     private static $handler = null;
     
-    private static $routesDirPath = null;
+    private static $routesDirPath = '';
     
-    private static const ROUTE_FILE_NAME = 'default';
+    private const ROUTE_FILE_NAME = 'default';
     
     public static function setHandler(RouteHandlerInterface $handler)
     {
         static::$handler = $handler;
     }
-    
-    
     
     public static function get(string $pattern)
     {
@@ -64,19 +64,23 @@ class Route
         return static::$handler->route('delete', $pattern);
     }
     
-    public static function plug(string $routesFileName)
+    public static function plug(string $routesFileName) : void
     {
-        try {
-            require static::$routesDirPath . $routesFileName . '.php';
-        } catch (\Throwable $e) {
-            require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
+        if (empty(static::$routesDirPath)) {
+            throw new \Exception('Routes directory path is not seted');
         }
+
+        if (is_file(static::$routesDirPath . $routesFileName . '.php')) {
+            require static::$routesDirPath . $routesFileName . '.php';
+            return;
+        }
+        require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
     }
     
     public static function setRoutesDirPath(string $dirPath)
     {
         // @todo тут должно быть исключение если routesDirPath уже установлен
-        if (!is_null(static::routesDirPath)) {
+        if (empty(static::$routesDirPath)) {
             static::$routesDirPath = $dirPath;
         }
     }

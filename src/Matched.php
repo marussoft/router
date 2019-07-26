@@ -6,23 +6,30 @@ namespace Marussia\Router;
 
 class Matched
 {
-    private $name;
+    public $name;
     
-    private $pattern;
+    public $pattern;
     
-    private $handler;
+    public $handler;
     
-    private $action;
+    public $action;
     
-    private $method;
+    public $method;
     
-    private $conditions;
+    public $conditions;
     
-    private $where;
+    public $where;
     
     public static function create(array $fillable) : self
     {
-        return new static();
+        $matched = new static();
+        $matched->name = $fillable['name'];
+        $matched->pattern = $fillable['pattern'];
+        $matched->handler = $fillable['handler'];
+        $matched->action = $fillable['action'];
+        $matched->method = $fillable['method'];
+        $matched->where = $fillable['where'] ?? '';
+        return $matched;
     }
 }
  
