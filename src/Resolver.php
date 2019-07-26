@@ -61,7 +61,8 @@ class Resolver
         $attributes = [];
     
         foreach ($where as $key => $value) {
-            $placeholder = str_replace($key, '{$' . $key . '}', $key);
+        
+            $placeholder = '{$' . $key . '}';
             
             $segmentKey = array_search($placeholder, $segments);
             

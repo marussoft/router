@@ -16,7 +16,5 @@ interface RouteHandlerInterface
     
     public function match() : void;
     
-    public function isMatched() : bool;
-    
-    public function getMatched();
+    public function __call();
 }

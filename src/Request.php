@@ -9,6 +9,8 @@ use Marussia\Router\Contracts\RequestInterface;
 class Request implements RequestInterface
 {
     private $data;
+    
+    private $uri = '/';
 
     public function __construct()
     {
