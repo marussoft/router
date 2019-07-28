@@ -14,7 +14,5 @@ interface RouteHandlerInterface
     
     public function action(string $action);
     
-    public function match() : void;
-    
-    public function __call();
+    public function match();
 }

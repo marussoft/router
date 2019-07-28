@@ -64,12 +64,17 @@ class Route
         return static::$handler->route('delete', $pattern);
     }
     
-    public static function plug(string $routesFileName) : void
+    public static function plug(string $routesFileName = '') : void
     {
         if (empty(static::$routesDirPath)) {
             throw new \Exception('Routes directory path is not seted');
         }
 
+        if (empty($routesFileName)) {
+            require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
+            return;
+        }
+        
         if (is_file(static::$routesDirPath . $routesFileName . '.php')) {
             require static::$routesDirPath . $routesFileName . '.php';
             return;

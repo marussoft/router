@@ -13,12 +13,14 @@ class Url
         static::$uriGenerator = $uriGenerator;
     }
     
-    public static function getUrl(string $routeName, array $params)
+    public static function get(string $routeName, array $params = []) : string
     {
         if (is_null(static::$uriGenerator)) {
             throw new \Exception('Router is not initialized');
         }
     
-        static::$uriGenerator->getUrl($routeName, $params);
+        Route::setHandler(static::$uriGenerator);
+    
+        return static::$uriGenerator->getUrl($routeName, $params);
     }
 }

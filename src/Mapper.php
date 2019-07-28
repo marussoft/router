@@ -10,9 +10,9 @@ class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
 {
     private $request;
 
-    private $fillable = [];
+    protected $fillable = [];
     
-    private $matched = null;
+    protected $matched = null;
     
     public function __construct(Request $request)
     {

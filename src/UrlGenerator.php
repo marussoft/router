@@ -14,7 +14,7 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
 
     private $request;
     
-    public function __constructor(Request $request){
+    public function __construct(Request $request){
         $this->request = $request;
     }
     
@@ -22,7 +22,7 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
     {
         parent::match();
         
-        if ($this->name === $this->requiredName) {
+        if ($this->fillable['name'] === $this->requiredName) {
             $this->matched = Matched::create($this->fillable);
         }
     }
@@ -31,7 +31,7 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
     {
         $this->requiredName = $routeName;
     
-        $segments = explode('.', $this->name);
+        $segments = explode('.', $this->requiredName);
         
         Route::plug($segments[0]);
         
@@ -46,15 +46,15 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
     {
         foreach ($params as $placeholderSelector => $value) {
             
-            $placeholder = '{' . $placeholderSelector . '}';
-            
-            if (!preg_match("($placeholder)", $this->fillable['pattern'])) {
-                throw new PlaceholderIsNotFoundForRoute($placeholderSelector, $this->pattern, $this->requiredName);
+            $placeholder = ('{$' . $placeholderSelector . '}');
+
+            if (!preg_match('(' . preg_quote($placeholder) . ')', $this->fillable['pattern'])) {
+                throw new PlaceholderIsNotFoundForRoute($placeholderSelector, $this->fillable['pattern'], $this->requiredName);
             }
             
             $this->fillable['pattern'] = str_replace($placeholder, $value, $this->fillable['pattern']);
         }
         
-        return $this->request->protocol() . '://' . $this->request->host() . '/' . $this->fillable['pattern'];
+        return $this->request->getProtocol() . '://' . $this->request->getHost() . '/' . $this->fillable['pattern'];
     }
 }

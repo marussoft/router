@@ -18,7 +18,7 @@ class Request implements RequestInterface
         
         $uri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_URL);
         
-        if (!empty($this->data['REQUEST_URI'])) {
+        if (!empty($uri) && $uri !== '/') {
             $this->uri = preg_replace('(\?.*$)', '', trim($uri, '/'));
         }
     }
@@ -41,11 +41,11 @@ class Request implements RequestInterface
     
     public function getHost() : string
     {
-    
+        return $this->data['HTTP_HOST'];
     }
     
-    public function getProtocol() : string
+    public function getProtocol(string $default = 'http') : string
     {
-    
+        return $this->data['HTTPS'] === 'on' ? 'https' : $default;
     }
 }

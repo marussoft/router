@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
+use Marussia\Router\Exceptions\PlaceholdersForPatternNotFound;
+
 abstract class AbstractRouteHandler
 {
-    private $matched = null;
+    protected $matched = null;
 
     public function route(string $method, string $pattern) : self
     {
-        $this->matched = null;
         if (!is_null($this->matched)) {
             return $this;
         }
+        
+        $this->fillable = [];
+        
         $this->fillable['method'] = $method;
         $this->fillable['pattern'] = $pattern;
         return $this;
@@ -24,7 +28,9 @@ abstract class AbstractRouteHandler
         if (!is_null($this->matched)) {
             return $this;
         }
-        $this->fillable['where'] = $where;
+        if (!is_null($where)) {
+            $this->fillable['where'] = $where;
+        }
         return $this;
     }
     
@@ -57,11 +63,10 @@ abstract class AbstractRouteHandler
     
     public function match()
     {
-        $this->checkErrors();
-    
         if (!is_null($this->matched)) {
             return;
         }
+        $this->checkErrors();
     }
     
     public function isMatched() : bool
@@ -72,7 +77,7 @@ abstract class AbstractRouteHandler
         return true;
     }
     
-    public function checkErrors()
+    protected function checkErrors()
     {
         if (isset($this->fillable['where']) && !preg_match('(\{\$[a-z]+\})', $this->fillable['pattern'])) {
             throw new PlaceholdersForPatternNotFound($this->fillable['pattern']);
@@ -81,10 +86,9 @@ abstract class AbstractRouteHandler
         if (!isset($this->fillable['handler'])) {
             throw new HandlerIsNotSetedException($this->fillable['pattern']);
         }
-    }
-    
-    public function __call()
-    {
-        return $this;
+        
+        if (!isset($this->fillable['action'])) {
+            throw new ActionIsNotSetedException($this->fillable['pattern']);
+        } 
     }
 }

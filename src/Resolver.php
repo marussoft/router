@@ -47,8 +47,15 @@ class Resolver
         return $result;
     }
     
-    private function prepareRoutes()
+    private function prepareRoutes() : void
     {
+        $uri = $this->request->getUri();
+        
+        if (empty($uri) or $uri === '/') {
+            Route::plug();
+            return;
+        }
+        
         $this->segments = explode('/', $this->request->getUri());
         
         Route::plug($this->segments[0]);
