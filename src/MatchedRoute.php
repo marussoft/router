@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-class Matched
+class MatchedRoute
 {
     public $name;
     

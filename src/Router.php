@@ -21,10 +21,11 @@ class Router
         Url::setUrlGenerator($urlGenerator);
     }
     
-    public static function create() : self
+    public static function create(string $uri, string $method, string $host, string $protocol = 'http') : self
     {
         $container = Container::create();
-        return $container->instance(static::class);
+        $request = $container->instance(Request::class, [$uri, $method, $host, $protocol]);
+        return $container->instance(static::class)->setRequest($request);
     }
     
     public function setRoutesDirPath(string $dirPath) : self
@@ -33,10 +34,11 @@ class Router
         return $this;
     }
     
-    public function setRequest(RequestInterface $request)
+    public function setRequest(RequestInterface $request) : self
     {
         $this->resolver->setRequest($request);
         $this->urlGenerator->setRequest($request);
+        return $this;
     }
     
     public function startRouting() : Result

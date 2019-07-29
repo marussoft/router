@@ -16,10 +16,9 @@ class Resolver
     
     private $matched;
 
-    public function __construct(Request $request, Mapper $mapper)
+    public function __construct(Mapper $mapper)
     {
         $this->mapper = $mapper;
-        $this->request = $request;
         Route::setHandler($mapper);
     }
     

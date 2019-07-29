@@ -8,21 +8,22 @@ use Marussia\Router\Contracts\RequestInterface;
 
 class Request implements RequestInterface
 {
-    private $data;
+    private $method;
     
     private $uri = '/';
 
-    public function __construct()
+    public function __construct(string $uri, string $method, string $host, string $protocol)
     {
-        $this->data = $_SERVER;
+        $this->method = strtoupper($method);
         
-        $uri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_URL);
+        $this->host = $host;
+        
+        $this->protocol = $protocol;
         
         if (!empty($uri) && $uri !== '/') {
             $this->uri = preg_replace('(\?.*$)', '', trim($uri, '/'));
         }
     }
-
 
     public function getUri() : string
     {
@@ -31,21 +32,21 @@ class Request implements RequestInterface
     
     public function getMethod() : string
     {
-        return $this->data['REQUEST_METHOD'];
+        return $this->method;
     }
     
     public function isMethod(string $method) : bool
     {
-        return $this->data['REQUEST_METHOD'] === strtoupper($method);
+        return $this->method === strtoupper($method);
     }
     
     public function getHost() : string
     {
-        return $this->data['HTTP_HOST'];
+        return $this->host;
     }
     
     public function getProtocol(string $default = 'http') : string
     {
-        return $this->data['HTTPS'] === 'on' ? 'https' : $default;
+        return $this->protocol;
     }
 }

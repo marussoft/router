@@ -8,16 +8,9 @@ use Marussia\Router\Contracts\RouteHandlerInterface;
 
 class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
 {
-    private $request;
-
     protected $fillable = [];
     
     protected $matched = null;
-    
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
     
     public function match() : void
     {
@@ -44,16 +37,11 @@ class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
             return;
         }
 
-        $this->matched = Matched::create($this->fillable);
+        $this->matched = MatchedRoute::create($this->fillable);
     }
     
-    public function getMatched() : Matched
+    public function getMatched() : MatchedRoute
     {
         return $this->matched;
-    }
-
-    public function setRequest(RequestInterface $request)
-    {
-        $this->request = $request;
     }
 }

@@ -12,24 +12,13 @@ use Marussia\Router\Exceptions\PlaceholdersParamsIsNotFoundException;
 class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
 {
     private $requiredName;
-
-    private $request;
-    
-    public function __construct(Request $request) {
-        $this->request = $request;
-    }
-    
-    public function setRequest(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     
     public function match() : void
     {
         parent::match();
         
         if ($this->fillable['name'] === $this->requiredName) {
-            $this->matched = Matched::create($this->fillable);
+            $this->matched = MatchedRoute::create($this->fillable);
         }
     }
 

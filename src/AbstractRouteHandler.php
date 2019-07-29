@@ -7,10 +7,15 @@ namespace Marussia\Router;
 use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
 use Marussia\Router\Exceptions\HandlerIsNotSetException;
 use Marussia\Router\Exceptions\ActionIsNotSetException;
+use Marussia\Router\Contracts\RequestInterface;
 
 abstract class AbstractRouteHandler
 {
+        protected $request;
+
     protected $matched = null;
+    
+    protected $fillable = [];
 
     public function route(string $method, string $pattern) : self
     {
@@ -77,6 +82,16 @@ abstract class AbstractRouteHandler
             return false;
         }
         return true;
+    }
+    
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request = $request;
+    }
+    
+    public function __call(string $name , array $arguments = []) : self
+    {
+        return $this;
     }
     
     protected function checkErrors() : void
