@@ -16,8 +16,6 @@ class Matched
     
     public $method;
     
-    public $conditions;
-    
     public $where;
     
     public static function create(array $fillable) : self

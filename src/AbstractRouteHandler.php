@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
+use Marussia\Router\Exceptions\HandlerIsNotSetException;
+use Marussia\Router\Exceptions\ActionIsNotSetException;
 
 abstract class AbstractRouteHandler
 {
@@ -84,11 +86,11 @@ abstract class AbstractRouteHandler
         }
         
         if (!isset($this->fillable['handler'])) {
-            throw new HandlerIsNotSetedException($this->fillable['pattern']);
+            throw new HandlerIsNotSetException($this->fillable['pattern']);
         }
         
         if (!isset($this->fillable['action'])) {
-            throw new ActionIsNotSetedException($this->fillable['pattern']);
+            throw new ActionIsNotSetException($this->fillable['pattern']);
         } 
     }
 }
