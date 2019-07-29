@@ -69,17 +69,12 @@ class Route
         if (empty(static::$routesDirPath)) {
             throw new \Exception('Routes directory path is not seted');
         }
-
-        if (empty($routesFileName)) {
+ 
+        if (empty($routesFileName) or !is_file(static::$routesDirPath . $routesFileName . '.php')) {
             require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
             return;
         }
-        
-        if (is_file(static::$routesDirPath . $routesFileName . '.php')) {
-            require static::$routesDirPath . $routesFileName . '.php';
-            return;
-        }
-        require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
+        require static::$routesDirPath . $routesFileName . '.php';
     }
     
     public static function setRoutesDirPath(string $dirPath)

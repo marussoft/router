@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Exceptions\RouteNotFoundException;
+use Marussia\Router\Contracts\RequestInterface;
 
 class Resolver
 {
@@ -28,6 +28,12 @@ class Resolver
         $this->prepareRoutes();
         
         return $this->buildResult();
+    }
+    
+    public function setRequest(RequestInterface $request) : void
+    {
+        $this->request = $request;
+        $this->mapper->setRequest($request);
     }
     
     private function buildResult() : Result
@@ -61,7 +67,7 @@ class Resolver
         Route::plug($this->segments[0]);
     }
     
-    private function assignAttributes(array $where, string $pattern)
+    private function assignAttributes(array $where, string $pattern) : array
     {
         $segments = explode('/', $pattern);
         

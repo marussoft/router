@@ -2,7 +2,7 @@
 
 namespace Marussia\Router\Exceptions;
 
-class PlaceholderIsNotFoundForRoute extends \Exception
+class PlaceholderIsNotFoundForRouteException extends \Exception
 {
     public function __construct($placeholderSelector, $pattern, $requiredName)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Exceptions\PlaceholdersForPatternNotFound;
+use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
 
 abstract class AbstractRouteHandler
 {
@@ -61,7 +61,7 @@ abstract class AbstractRouteHandler
         return $this;
     }
     
-    public function match()
+    public function match() : void
     {
         if (!is_null($this->matched)) {
             return;
@@ -77,10 +77,10 @@ abstract class AbstractRouteHandler
         return true;
     }
     
-    protected function checkErrors()
+    protected function checkErrors() : void
     {
         if (isset($this->fillable['where']) && !preg_match('(\{\$[a-z]+\})', $this->fillable['pattern'])) {
-            throw new PlaceholdersForPatternNotFound($this->fillable['pattern']);
+            throw new PlaceholdersForPatternNotFoundException($this->fillable['pattern']);
         }
         
         if (!isset($this->fillable['handler'])) {

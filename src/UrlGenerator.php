@@ -6,7 +6,8 @@ namespace Marussia\Router;
 
 use Marussia\Router\Contracts\RouteHandlerInterface;
 use Marussia\Router\Exceptions\RouteIsNotFoundForNameException;
-use Marussia\Router\Exceptions\PlaceholderIsNotFoundForRoute;
+use Marussia\Router\Exceptions\PlaceholderIsNotFoundForRouteException;
+use Marussia\Router\Exceptions\PlaceholdersParamsIsNotFoundException;
 
 class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
 {
@@ -14,11 +15,16 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
 
     private $request;
     
-    public function __construct(Request $request){
+    public function __construct(Request $request) {
         $this->request = $request;
     }
     
-    public function match()
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request = $request;
+    }
+    
+    public function match() : void
     {
         parent::match();
         
@@ -29,6 +35,9 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
 
     public function getUrl(string $routeName, array $params = []) : string
     {
+        $this->fillable = [];
+        $this->matched = null;
+        
         $this->requiredName = $routeName;
     
         $segments = explode('.', $this->requiredName);
@@ -44,17 +53,21 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
     
     private function buildUrl(array $params) : string
     {
+        if (preg_match('(\$[a-z]+)', $this->fillable['pattern']) && empty($params)) {
+            throw new PlaceholdersParamsIsNotFoundException($this->fillable['pattern']);  
+        }
+    
         foreach ($params as $placeholderSelector => $value) {
             
             $placeholder = ('{$' . $placeholderSelector . '}');
 
             if (!preg_match('(' . preg_quote($placeholder) . ')', $this->fillable['pattern'])) {
-                throw new PlaceholderIsNotFoundForRoute($placeholderSelector, $this->fillable['pattern'], $this->requiredName);
+                throw new PlaceholderIsNotFoundForRouteException($placeholderSelector, $this->fillable['pattern'], $this->requiredName);
             }
             
             $this->fillable['pattern'] = str_replace($placeholder, $value, $this->fillable['pattern']);
         }
         
-        return $this->request->getProtocol() . '://' . $this->request->getHost() . '/' . $this->fillable['pattern'];
+        return $this->request->getProtocol() . '://' . $this->request->getHost() . '/' . trim($this->fillable['pattern'], '/');
     }
 }

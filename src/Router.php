@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\DependencyInjection\Container;
+use Marussia\Router\Contracts\RequestInterface;
 
 class Router
 {
@@ -16,6 +17,7 @@ class Router
     {
         $this->resolver = $resolver;
         $this->mapper = $mapper;
+        $this->urlGenerator = $urlGenerator;
         Url::setUrlGenerator($urlGenerator);
     }
     
@@ -29,6 +31,12 @@ class Router
     {
         Route::setRoutesDirPath($dirPath);
         return $this;
+    }
+    
+    public function setRequest(RequestInterface $request)
+    {
+        $this->resolver->setRequest($request);
+        $this->urlGenerator->setRequest($request);
     }
     
     public function startRouting() : Result

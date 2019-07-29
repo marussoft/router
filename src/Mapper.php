@@ -33,7 +33,7 @@ class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
    
         $pattern = $this->fillable['pattern'];
         
-        // @todo добавить проверку на существование плейсхолдера с выбросом исключения (противоречит $this->checkErrors)
+        // @todo добавить проверку на существование плейсхолдера с выбросом исключения
         if (!empty($this->fillable['where'])) {
             foreach($this->fillable['where'] as $key => $condition) {
                 $pattern = str_replace('{$' . $key . '}', $condition, $pattern);
@@ -52,4 +52,8 @@ class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
         return $this->matched;
     }
 
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request = $request;
+    }
 }
