@@ -8,8 +8,6 @@ use Marussia\Router\Contracts\RouteHandlerInterface;
 
 class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
 {
-    protected $fillable = [];
-    
     protected $matched = null;
     
     public function match() : void
