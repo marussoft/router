@@ -4,96 +4,84 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
+use Marussia\Router\Contracts\RouteHandlerInterface;
+
 class Route
 {
-    private static $uri;
-    private static $controller = '';
-    private static $action = '';
-    private static $nesting;
-    private static $alias;
-    private static $routes;
-    private static $method;
+    private static $handler = null;
     
+    private static $routesDirPath = '';
     
-    public static function get(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    private const ROUTE_FILE_NAME = 'default';
+    
+    public static function setHandler(RouteHandlerInterface $handler)
     {
-        if (static::$method === 'GET') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
+        static::$handler = $handler;
+    }
+    
+    public static function get(string $pattern)
+    {
+        if (is_null(static::$handler)) {
+            throw new \Exception('Router is not initialized');
         }
+        
+        return static::$handler->route('get', $pattern);
     }
     
-    public static function post(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public static function post(string $pattern)
     {
-        if (static::$method === 'POST') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
+        if (is_null(static::$handler)) {
+            throw new \Exception('Router is not initialized');
         }
+        
+        return static::$handler->route('post', $pattern);
     }
     
-    public static function put(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public static function put(string $pattern)
     {
-        if (static::$method === 'PUT') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
+        if (is_null(static::$handler)) {
+            throw new \Exception('Router is not initialized');
         }
+        
+        return static::$handler->route('put', $pattern);
     }
     
-    public static function delete(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public static function patch(string $pattern)
     {
-        if (static::$method === 'DELETE') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
+        if (is_null(static::$handler)) {
+            throw new \Exception('Router is not initialized');
         }
+        
+        return static::$handler->route('patch', $pattern);
     }
     
-    public static function patch(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false) : void
+    public static function delete(string $pattern)
     {
-        if (static::$method === 'PATCH') {
-            static::matched($controller, $action, $route, $routes, $nesting, $alias);
+        if (is_null(static::$handler)) {
+            throw new \Exception('Router is not initialized');
         }
-    }
-
-    public static function controller()
-    {
-        return static::$controller;
+        
+        return static::$handler->route('delete', $pattern);
     }
     
-    public static function action()
+    public static function plug(string $routesFileName = '') : void
     {
-        return static::$action;
+        if (empty(static::$routesDirPath)) {
+            throw new \Exception('Routes directory path is not seted');
+        }
+ 
+        if (empty($routesFileName) or !is_file(static::$routesDirPath . $routesFileName . '.php')) {
+            require static::$routesDirPath . self::ROUTE_FILE_NAME . '.php';
+            return;
+        }
+        require static::$routesDirPath . $routesFileName . '.php';
     }
     
-    public static function routes()
+    public static function setRoutesDirPath(string $dirPath)
     {
-        return static::$routes;
-    }
-    
-    public static function nesting()
-    {
-        return static::$nesting;
-    }
-    
-    public static function alias()
-    {
-        return static::$alias;
-    }
-    
-    public static function setMethod(string $method)
-    {
-        static::$method = $method;
-    }
-    
-    public static function setUri(string $uri)
-    {
-        static::$uri = $uri;
-    }
-    
-    private static function matched(string $controller, string $action, string $route, array $routes = [], bool $nesting = false, bool $alias = false)
-    {
-        // Сравниваем $route с uri
-        if (empty(static::$controller) && preg_match("($route)", static::$uri)) {
-            static::$routes = $routes;
-            static::$controller = $controller;
-            static::$action = $action;
-            static::$nesting = $nesting;
-            static::$alias = $alias;
+        // @todo тут должно быть исключение если routesDirPath уже установлен
+        if (empty(static::$routesDirPath)) {
+            static::$routesDirPath = $dirPath;
         }
     }
 }
