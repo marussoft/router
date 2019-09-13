@@ -15,6 +15,8 @@ class Resolver
     private $segments = [];
     
     private $matched;
+    
+    private $languages =[];
 
     public function __construct(Mapper $mapper)
     {
@@ -33,6 +35,12 @@ class Resolver
     {
         $this->request = $request;
         $this->mapper->setRequest($request);
+    }
+    
+    public function setLanguages(array $languages = []) : self
+    {
+        $this->languages = $languages;
+        return $this;
     }
     
     private function buildResult() : Result
@@ -55,13 +63,20 @@ class Resolver
     private function prepareRoutes() : void
     {
         $uri = $this->request->getUri();
-        
+
         if (empty($uri) or $uri === '/') {
             Route::plug();
             return;
         }
+
+        if (!empty($this->languages)) {
+            $uri = trim(str_replace($this->languages, '', $uri), '/');
+        }
         
-        $this->segments = explode('/', $this->request->getUri());
+//         echo $uri;
+        
+        $this->segments = explode('/', $uri);
+//         echo $this->segments[0];
         
         Route::plug($this->segments[0]);
     }
