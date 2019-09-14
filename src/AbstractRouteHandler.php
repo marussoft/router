@@ -11,7 +11,7 @@ use Marussia\Router\Contracts\RequestInterface;
 
 abstract class AbstractRouteHandler
 {
-        protected $request;
+    protected $request;
 
     protected $matched = null;
     

@@ -30,6 +30,11 @@ class Request implements RequestInterface
         return $this->uri;
     }
     
+    public function setUri(string $uri)
+    {
+        $this->uri = $uri;
+    }
+    
     public function getMethod() : string
     {
         return $this->method;

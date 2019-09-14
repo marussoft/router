@@ -41,7 +41,7 @@ class Router
         return $this;
     }
     
-    public function setLanguages(array $languages = []) : self
+    public function setLanguages(array $languages) : self
     {
         $this->resolver->setLanguages($languages);
         return $this;
