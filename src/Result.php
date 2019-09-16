@@ -14,7 +14,7 @@ class Result
     
     public $attributes = [];
     
-    public $lang = '';
+    public $language = '';
     
     public function __construct(bool $status)
     {
