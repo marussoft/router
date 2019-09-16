@@ -15,6 +15,10 @@ class Resolver
     private $segments = [];
     
     private $matched;
+    
+    private $languages =[];
+    
+    private $currentLanguage;
 
     public function __construct(Mapper $mapper)
     {
@@ -24,6 +28,14 @@ class Resolver
     
     public function resolve() : Result
     {
+        $this->uri = $this->request->getUri();
+    
+        $this->segments = explode('/', $this->uri);
+    
+        if (!empty($this->languages)) {
+            $this->prepareLanguage();
+        }
+    
         $this->prepareRoutes();
         
         return $this->buildResult();
@@ -33,6 +45,12 @@ class Resolver
     {
         $this->request = $request;
         $this->mapper->setRequest($request);
+    }
+    
+    public function setLanguages(array $languages = []) : self
+    {
+        $this->languages = $languages;
+        return $this;
     }
     
     private function buildResult() : Result
@@ -46,6 +64,7 @@ class Resolver
         $result = Result::create(true);
         $result->handler = $matched->handler;
         $result->action = $matched->action;
+        $result->lang = $this->currentLanguage;
         if (!empty($matched->where)) {
             $result->attributes = $this->assignAttributes($matched->where, $matched->pattern);
         }
@@ -54,16 +73,27 @@ class Resolver
     
     private function prepareRoutes() : void
     {
-        $uri = $this->request->getUri();
-        
-        if (empty($uri) or $uri === '/') {
+        if (empty($this->uri) or $this->uri === '/' or empty($this->segments)) {
             Route::plug();
             return;
         }
         
-        $this->segments = explode('/', $this->request->getUri());
-        
         Route::plug($this->segments[0]);
+    }
+    
+    private function prepareLanguage()
+    {
+        if (array_search($this->segments[0], $this->languages, true) !== false) {
+            $this->currentLanguage = array_shift($this->segments);
+        }
+    
+        $uri = trim(str_replace($this->languages, '', $this->uri), '/');
+
+        if (empty($uri)) {
+            $uri = '/';
+        }
+        
+        $this->request->setUri($uri);
     }
     
     private function assignAttributes(array $where, string $pattern) : array
