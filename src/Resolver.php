@@ -64,7 +64,7 @@ class Resolver
         $result = Result::create(true);
         $result->handler = $matched->handler;
         $result->action = $matched->action;
-        $result->lang = $this->currentLanguage;
+        $result->language = $this->currentLanguage;
         if (!empty($matched->where)) {
             $result->attributes = $this->assignAttributes($matched->where, $matched->pattern);
         }
