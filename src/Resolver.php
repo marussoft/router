@@ -118,9 +118,7 @@ class Resolver
 
         foreach ($where as $key => $regExp) {
 
-            if (is_numeric(current($needs))) {
-                $attributes[$key] = intval(current($needs));
-            }
+            $attributes[$key] = is_numeric(current($needs)) ? intval(current($needs)) : current($needs);
 
             next($needs);
         }
