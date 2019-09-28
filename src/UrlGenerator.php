@@ -22,7 +22,7 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
         }
     }
 
-    public function getUrl(string $routeName, array $params = []) : string
+    public function getUrl(string $routeName, array $params = [], string $lang = '') : string
     {
         $this->fillable = [];
         $this->matched = null;
@@ -37,10 +37,10 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
             throw new RouteIsNotFoundForNameException($routeName);
         }
         
-        return $this->buildUrl($params);
+        return $this->buildUrl($params, $lang);
     }
     
-    private function buildUrl(array $params) : string
+    private function buildUrl(array $params, string $lang) : string
     {
         if (preg_match('(\$[a-z]+)', $this->fillable['pattern']) && empty($params)) {
             throw new PlaceholdersParamsIsNotFoundException($this->fillable['pattern']);  
@@ -57,6 +57,12 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
             $this->fillable['pattern'] = str_replace($placeholder, $value, $this->fillable['pattern']);
         }
         
-        return $this->request->getProtocol() . '://' . $this->request->getHost() . '/' . trim($this->fillable['pattern'], '/');
+        $uri = trim($this->fillable['pattern'], '/');
+        
+        if (!empty($lang)) {
+            $uri = $lang . '/' . $uri;
+        }
+        
+        return $this->request->getProtocol() . '://' . $this->request->getHost() . '/' . $uri;
     }
 }

@@ -14,6 +14,8 @@ class Result
     
     public $attributes = [];
     
+    public $language = '';
+    
     public function __construct(bool $status)
     {
         $this->status = $status;
