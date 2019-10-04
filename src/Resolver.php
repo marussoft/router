@@ -66,7 +66,8 @@ class Resolver
         $result->action = $matched->action;
         $result->language = $this->currentLanguage;
         if (!empty($matched->where)) {
-            $result->attributes = $this->assignAttributes($matched->where, $matched->pattern);
+            $where = $this->prepareWhere($matched->where, $matched->pattern);
+            $result->attributes = $this->assignAttributes($where, $matched->pattern);
         }
         return $result;
     }
@@ -109,21 +110,40 @@ class Resolver
 
         $segments = explode(' ', $pattern);
 
-        while (key($segments) !== null) {
-            $uri = str_replace(current($segments), ' ', $uri);
-            next($segments);
+        foreach ($where as $key => $value) {
+
+            $needless = array_shift($segments);
+
+            $uri = substr($uri, strlen($needless));
+
+            $delimiter = substr($value, 0, 1) === '(' ? ')' : substr($value, 0, 1);
+
+            $withNeedless = substr($value, 0, -1) . preg_quote($segments[0]) . $delimiter;
+
+            preg_match($withNeedless, $uri, $matched);
+
+            $rawAttributes[$key] = substr($matched[0], 0, -(strlen(current($segments))));
+
+            $uri = substr($uri, strlen(current($segments)));
         }
 
-        $needs = explode(' ', trim($uri));
-
-        foreach ($where as $key => $regExp) {
-
-            $attributes[$key] = is_numeric(current($needs)) ? intval(current($needs)) : current($needs);
-
-            next($needs);
+        foreach ($rawAttributes as $key => $value) {
+            $attributes[$key] = is_numeric($value) ? intval($value) : $value;
         }
 
         return $attributes;
     }
-
+    
+    private function prepareWhere(array $where, string $pattern) : array
+    {
+        preg_match_all('(\{\$[a-z]+\})', $pattern, $matched, PREG_SET_ORDER);
+        
+        foreach ($matched as $value) {
+        
+            $placeHolder = substr($value[0], 2, -1);
+            $sortedWhere[$placeHolder] = $where[$placeHolder];
+        }
+        
+        return $sortedWhere;
+    }
 }
