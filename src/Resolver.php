@@ -66,7 +66,8 @@ class Resolver
         $result->action = $matched->action;
         $result->language = $this->currentLanguage;
         if (!empty($matched->where)) {
-            $result->attributes = $this->assignAttributes($matched->where, $matched->pattern);
+            $where = $this->prepareWhere($matched->where, $matched->pattern);
+            $result->attributes = $this->assignAttributes($where, $matched->pattern);
         }
         return $result;
     }
@@ -131,5 +132,18 @@ class Resolver
         }
 
         return $attributes;
+    }
+    
+    private function prepareWhere(array $where, string $pattern) : array
+    {
+        preg_match_all('(\{\$[a-z]+\})', $pattern, $matched, PREG_SET_ORDER);
+        
+        foreach ($matched as $value) {
+        
+            $placeHolder = substr($value[0], 2, -1);
+            $sortedWhere[$placeHolder] = $where[$placeHolder];
+        }
+        
+        return $sortedWhere;
     }
 }
