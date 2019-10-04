@@ -124,7 +124,7 @@ class Resolver
 
             $rawAttributes[$key] = substr($matched[0], 0, -(strlen(current($segments))));
 
-            $uri = substr($uri, strlen(current($segments)));
+            $uri = substr($uri, strlen($rawAttributes[$key]));
         }
 
         foreach ($rawAttributes as $key => $value) {
@@ -133,17 +133,17 @@ class Resolver
 
         return $attributes;
     }
-    
+
     private function prepareWhere(array $where, string $pattern) : array
     {
         preg_match_all('(\{\$[a-z]+\})', $pattern, $matched, PREG_SET_ORDER);
-        
+
         foreach ($matched as $value) {
-        
+
             $placeHolder = substr($value[0], 2, -1);
             $sortedWhere[$placeHolder] = $where[$placeHolder];
         }
-        
+
         return $sortedWhere;
     }
 }
