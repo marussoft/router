@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Marussia\Router\Test;
 
-use Marussia\Router\Request;
 use PHPUnit\Framework\TestCase;
+use Marussia\Router\Request;
 
 class RequestTest extends TestCase
 {
@@ -39,7 +39,7 @@ class RequestTest extends TestCase
         $this->assertTrue(self::request()->isMethod('GET'));
     }
 
-    private static function request($uri = ''): Request
+    private static function request(string $uri = ''): Request
     {
         $uri = empty($uri) ? '/' : $uri;
         $method = 'get';

@@ -96,7 +96,7 @@ abstract class AbstractRouteHandler
     
     protected function checkErrors() : void
     {
-        if (isset($this->fillable['where']) && !preg_match('(\{\$[a-z]+\})', $this->fillable['pattern'])) {
+        if (isset($this->fillable['where']) && !preg_match('(\{\$[a-zA-Z]+\})', $this->fillable['pattern'])) {
             throw new PlaceholdersForPatternNotFoundException($this->fillable['pattern']);
         }
         
