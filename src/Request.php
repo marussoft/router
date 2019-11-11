@@ -50,7 +50,7 @@ class Request implements RequestInterface
         return $this->host;
     }
     
-    public function getProtocol(string $default = 'http') : string
+    public function getProtocol() : string
     {
         return $this->protocol;
     }
