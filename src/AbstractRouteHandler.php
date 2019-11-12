@@ -17,6 +17,18 @@ abstract class AbstractRouteHandler
     
     protected $fillable = [];
 
+    protected $attributeTypes = [
+        'STRING' => '([a-z0-9\-]+)',
+        'INTEGER' => '([0-9]+)',
+        'ARRAY' => '([a-z0-9]+)/(([a-z0-9\-]+/)+|([a-z0-9\-_]+)+)($)',
+    ];
+    
+    const PLACEHOLDER_TYPE_STRING = 'STRING';
+
+    const PLACEHOLDER_TYPE_INTEGER = 'INTEGER';
+
+    const PLACEHOLDER_TYPE_ARRAY = 'ARRAY';
+    
     public function route(string $method, string $pattern) : self
     {
         if (!is_null($this->matched)) {
@@ -107,5 +119,15 @@ abstract class AbstractRouteHandler
         if (!isset($this->fillable['action'])) {
             throw new ActionIsNotSetException($this->fillable['pattern']);
         } 
+    }
+    
+    public function getPlaceholderType(string $type) : string
+    {
+        return $this->attributeTypes[strtoupper($type)];
+    }
+
+    public function hasPlaceholderType(string $type) : bool
+    {
+        return array_key_exists(strtoupper($type), $this->attributeTypes);
     }
 }

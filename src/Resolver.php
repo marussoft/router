@@ -16,21 +16,11 @@ class Resolver
 
     private $matched;
 
-    private $languages =[];
+    private $languages = [];
 
     private $currentLanguage;
 
-    private $regExps = [
-        'STRING' => '([a-z0-9\-]+)',
-        'INTEGER' => '([0-9]+)',
-        'ARRAY' => '([a-z0-9]+)/(([a-z0-9\-]+/)+|([a-z0-9\-_]+)+)($)', // Возможно ошибка
-    ];
-
-    private const ATTRIBUTE_TYPE_INTEGER = 'INTEGER';
-
-    private const ATTRIBUTE_TYPE_ARRAY = 'ARRAY';
-
-    private const ATTRIBUTE_DELIMITER = '/';
+    private const ATTRIBUTE_ARRAY_DELIMITER = '/';
 
     public function __construct(Mapper $mapper)
     {
@@ -118,14 +108,10 @@ class Resolver
         $rawAttributes = [];
 
         $uri = $this->request->getUri();
-
-        // Вынести в метод
-        while (key($where) !== null) {
-            $pattern = str_replace('{$' . key($where) . '}', ' ', $pattern);
-            next($where);
-        }
-
-        $segments = explode(' ', trim($pattern, ' '));
+        
+        $patternWithoutPlaceholders = $this->clearPlaceholdersInPattern($where, $pattern);
+        
+        $segments = explode(' ', trim($patternWithoutPlaceholders, ' '));
 
         foreach ($where as $key => $value) {
 
@@ -135,14 +121,9 @@ class Resolver
 
             $delimiter = substr($value, 0, 1) === '(' ? ')' : substr($value, 0, 1);
 
-            // Вынести в метод
-            if (isset($segments[0]) === false) {
-                $withNeedless = substr($value, 0, -1) . $delimiter;
-            } else {
-                $withNeedless = substr($value, 0, -1) . preg_quote($segments[0]) . $delimiter;
-            }
-
-            preg_match($withNeedless, $uri, $matched);
+            $segmentPattern = $this->makePattern($segments, $delimiter, $value);
+            
+            preg_match($segmentPattern, $uri, $matched);
 
             if (empty($segments)) {
                 $rawAttributes[$key] = $matched[0];
@@ -156,16 +137,35 @@ class Resolver
         return $rawAttributes;
     }
 
+    private function clearPlaceholdersInPattern(array $where, string $pattern)
+    {
+        while (key($where) !== null) {
+            $pattern = str_replace('{$' . key($where) . '}', ' ', $pattern);
+            next($where);
+        }
+        return $pattern;
+    }
+    
+    private function makePattern(array $segments, string $delimiter, string $whereValue) : string
+    {
+        if (isset($segments[0]) === false) {
+            return substr($whereValue, 0, -1) . $delimiter;
+        }
+        return substr($whereValue, 0, -1) . preg_quote($segments[0]) . $delimiter;
+    }
+    
     private function prepareWhere(array $where, string $pattern) : array
     {
         preg_match_all('(\{\$[a-zA-Z]+\})', $pattern, $matched, PREG_SET_ORDER);
 
+        $sortedWhere = [];
+        
         foreach ($matched as $value) {
 
             $placeHolder = substr($value[0], 2, -1);
 
-            if (array_key_exists($where[$placeHolder], $this->regExps)) {
-                $sortedWhere[$placeHolder] = $this->regExps[$placeHolder];
+            if ($this->mapper->hasPlaceholderType($where[$placeHolder])) {
+                $sortedWhere[$placeHolder] = $this->mapper->getPlaceholderType($where[$placeHolder]);
                 continue;
             }
 
@@ -178,19 +178,20 @@ class Resolver
     private function prepareTypes(array $where) : array
     {
         $attributesTypesMap = [];
-
+        
         foreach ($where as $placeHolder => $value) {
-            if (array_key_exists($placeHolder, $this->regExps) === false) {
+            
+            if ($this->mapper->hasPlaceholderType($value) === false) {
                 continue;
             }
 
-            if ($this->regExps[$placeHolder] === self::ATTRIBUTE_TYPE_INTEGER) {
-                $attributesTypesMap[$placeHolder] = self::ATTRIBUTE_TYPE_INTEGER;
+            if (strtoupper($value) === Mapper::PLACEHOLDER_TYPE_INTEGER) {
+                $attributesTypesMap[$placeHolder] = Mapper::PLACEHOLDER_TYPE_INTEGER;
                 continue;
             }
 
-            if ($this->regExps[$placeHolder] === self::ATTRIBUTE_TYPE_ARRAY) {
-                $attributesTypesMap[$placeHolder] = self::ATTRIBUTE_TYPE_ARRAY;
+            if (strtoupper($value) === Mapper::PLACEHOLDER_TYPE_ARRAY) {
+                $attributesTypesMap[$placeHolder] = Mapper::PLACEHOLDER_TYPE_ARRAY;
             }
         }
 
@@ -206,19 +207,19 @@ class Resolver
         }
 
         foreach ($rawAttributes as $placeHolder => $value) {
-
+        
             if (array_key_exists($placeHolder, $attributesTypesMap) === false) {
+                $attributes[$placeHolder] = $value;
                 continue;
             }
 
-            if ($attributesTypesMap[$placeHolder] === self::ATTRIBUTE_TYPE_INTEGER) {
+            if ($attributesTypesMap[$placeHolder] === Mapper::PLACEHOLDER_TYPE_INTEGER) {
                 $attributes[$placeHolder] = intval($value);
                 continue;
             }
 
-            if ($attributesTypesMap[$placeHolder] === self::ATTRIBUTE_TYPE_ARRAY) {
-                $attributes[$placeHolder] = explode(self::ATTRIBUTE_DELIMITER, $value);
-                continue;
+            if ($attributesTypesMap[$placeHolder] === Mapper::PLACEHOLDER_TYPE_ARRAY) {
+                $attributes[$placeHolder] = explode(self::ATTRIBUTE_ARRAY_DELIMITER, $value);
             }
         }
 
