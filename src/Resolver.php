@@ -165,7 +165,7 @@ class Resolver
             $placeHolder = substr($value[0], 2, -1);
 
             if ($this->mapper->hasPlaceholderType($where[$placeHolder])) {
-                $sortedWhere[$placeHolder] = $this->mapper->getPlaceholderType($where[$placeHolder]);
+                $sortedWhere[$placeHolder] = $this->mapper->getPlaceholderRegExp($where[$placeHolder]);
                 continue;
             }
 

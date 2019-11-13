@@ -106,6 +106,16 @@ abstract class AbstractRouteHandler
         return $this;
     }
     
+    public function getPlaceholderRegExp(string $type) : string
+    {
+        return $this->attributeTypes[strtoupper($type)];
+    }
+
+    public function hasPlaceholderType(string $type) : bool
+    {
+        return array_key_exists(strtoupper($type), $this->attributeTypes);
+    }
+    
     protected function checkErrors() : void
     {
         if (isset($this->fillable['where']) && !preg_match('(\{\$[a-zA-Z]+\})', $this->fillable['pattern'])) {
@@ -119,15 +129,5 @@ abstract class AbstractRouteHandler
         if (!isset($this->fillable['action'])) {
             throw new ActionIsNotSetException($this->fillable['pattern']);
         } 
-    }
-    
-    public function getPlaceholderType(string $type) : string
-    {
-        return $this->attributeTypes[strtoupper($type)];
-    }
-
-    public function hasPlaceholderType(string $type) : bool
-    {
-        return array_key_exists(strtoupper($type), $this->attributeTypes);
     }
 }

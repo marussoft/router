@@ -28,7 +28,7 @@ class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
         if (!empty($this->fillable['where'])) {
             foreach($this->fillable['where'] as $key => $condition) {
                 if ($this->hasPlaceholderType($condition)) {
-                    $pattern = str_replace('{$' . $key . '}', $this->getPlaceholderType($condition), $pattern);
+                    $pattern = str_replace('{$' . $key . '}', $this->getPlaceholderRegExp($condition), $pattern);
                     continue;
                 }
                 $pattern = str_replace('{$' . $key . '}', $condition, $pattern);
