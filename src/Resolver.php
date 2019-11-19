@@ -12,20 +12,26 @@ class Resolver
 
     private $request;
 
+    private $routeFilePlug;
+
     private $segments = [];
 
     private $matched;
 
     private $languages = [];
 
-    private $currentLanguage;
+    private $result;
 
     private const ATTRIBUTE_ARRAY_DELIMITER = '/';
 
-    public function __construct(Mapper $mapper)
+    private const ROUTE_DEFAULT_FILE = 'default';
+
+    public function __construct(Mapper $mapper, Request $request, RouteFilePlug $routeFilePlug, Result $result)
     {
         $this->mapper = $mapper;
-        Route::setHandler($mapper);
+        $this->request = $request;
+        $this->routeFilePlug = $routeFilePlug;
+        $this->result = $result;
     }
 
     public function resolve() : Result
@@ -34,19 +40,17 @@ class Resolver
 
         $this->segments = explode('/', $this->uri);
 
-        if (!empty($this->languages)) {
-            $this->prepareLanguage();
+        if (count($this->languages) > 0) {
+            $this->result->language = $this->prepareLanguage();
         }
 
-        $this->prepareRoutes();
+        if ($this->uri === '/' or count($this->segments) === 0) {
+            $this->routeFilePlug->plug(self::ROUTE_DEFAULT_FILE);
+        } else {
+            $this->routeFilePlug->plug($this->segments[0]);
+        }
 
         return $this->buildResult();
-    }
-
-    public function setRequest(RequestInterface $request) : void
-    {
-        $this->request = $request;
-        $this->mapper->setRequest($request);
     }
 
     public function setLanguages(array $languages = []) : self
@@ -58,40 +62,30 @@ class Resolver
     private function buildResult() : Result
     {
         if (!$this->mapper->isMatched()) {
-            return Result::create(false);
+            return $this->result->status = false;
         }
 
         $matched = $this->mapper->getMatched();
 
-        $result = Result::create(true);
-        $result->handler = $matched->handler;
-        $result->action = $matched->action;
-        $result->language = $this->currentLanguage;
+        $this->result->status = true;
+        $this->result->handler = $matched->handler;
+        $this->result->action = $matched->action;
 
         if (!empty($matched->where)) {
             $where = $this->prepareWhere($matched->where, $matched->pattern);
             $attributesTypesMap = $this->prepareTypes($matched->where);
-            $rawAttributes = $this->assignAttributes($where, $matched->pattern);
-            $result->attributes = $this->typeСonversion($rawAttributes, $attributesTypesMap);
+            $this->result->attributes = $this->assignAttributes($where, $matched->pattern, $attributesTypesMap);
         }
 
-        return $result;
+        return $this->result;
     }
 
-    private function prepareRoutes() : void
+    private function prepareLanguage() : string
     {
-        if (empty($this->uri) or $this->uri === '/' or empty($this->segments)) {
-            Route::plug();
-            return;
-        }
+        $currentLanguage = '';
 
-        Route::plug($this->segments[0]);
-    }
-
-    private function prepareLanguage()
-    {
         if (array_search($this->segments[0], $this->languages, true) !== false) {
-            $this->currentLanguage = array_shift($this->segments);
+            $currentLanguage = array_shift($this->segments);
         }
 
         $uri = trim(str_replace($this->languages, '', $this->uri), '/');
@@ -100,17 +94,19 @@ class Resolver
             $uri = '/';
         }
 
-        $this->request->setUri($uri);
+        $this->request->replaceUri($uri);
+
+        return $currentLanguage;
     }
 
-    private function assignAttributes(array $where, string $pattern) : array
+    private function assignAttributes(array $where, string $pattern, array $attributesTypesMap) : array
     {
         $rawAttributes = [];
 
         $uri = $this->request->getUri();
-        
+
         $patternWithoutPlaceholders = $this->clearPlaceholdersInPattern($where, $pattern);
-        
+
         $segments = explode(' ', trim($patternWithoutPlaceholders, ' '));
 
         foreach ($where as $key => $value) {
@@ -122,7 +118,7 @@ class Resolver
             $delimiter = substr($value, 0, 1) === '(' ? ')' : substr($value, 0, 1);
 
             $segmentPattern = $this->makePattern($segments, $delimiter, $value);
-            
+
             preg_match($segmentPattern, $uri, $matched);
 
             if (empty($segments)) {
@@ -134,7 +130,7 @@ class Resolver
             $uri = substr($uri, strlen($rawAttributes[$key]));
         }
 
-        return $rawAttributes;
+        return $this->typeСonversion($rawAttributes, $attributesTypesMap);
     }
 
     private function clearPlaceholdersInPattern(array $where, string $pattern)
@@ -145,7 +141,7 @@ class Resolver
         }
         return $pattern;
     }
-    
+
     private function makePattern(array $segments, string $delimiter, string $whereValue) : string
     {
         if (isset($segments[0]) === false) {
@@ -153,13 +149,13 @@ class Resolver
         }
         return substr($whereValue, 0, -1) . preg_quote($segments[0]) . $delimiter;
     }
-    
+
     private function prepareWhere(array $where, string $pattern) : array
     {
         preg_match_all('(\{\$[a-zA-Z]+\})', $pattern, $matched, PREG_SET_ORDER);
 
         $sortedWhere = [];
-        
+
         foreach ($matched as $value) {
 
             $placeHolder = substr($value[0], 2, -1);
@@ -178,9 +174,9 @@ class Resolver
     private function prepareTypes(array $where) : array
     {
         $attributesTypesMap = [];
-        
+
         foreach ($where as $placeHolder => $value) {
-            
+
             if ($this->mapper->hasPlaceholderType($value) === false) {
                 continue;
             }
@@ -207,7 +203,7 @@ class Resolver
         }
 
         foreach ($rawAttributes as $placeHolder => $value) {
-        
+
             if (array_key_exists($placeHolder, $attributesTypesMap) === false) {
                 $attributes[$placeHolder] = $value;
                 continue;

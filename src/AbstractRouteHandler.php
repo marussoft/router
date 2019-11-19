@@ -29,6 +29,11 @@ abstract class AbstractRouteHandler
 
     const PLACEHOLDER_TYPE_ARRAY = 'ARRAY';
     
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+    
     public function route(string $method, string $pattern) : self
     {
         if (!is_null($this->matched)) {
@@ -94,16 +99,6 @@ abstract class AbstractRouteHandler
             return false;
         }
         return true;
-    }
-    
-    public function setRequest(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
-    
-    public function __call(string $name , array $arguments = []) : self
-    {
-        return $this;
     }
     
     public function getPlaceholderRegExp(string $type) : string
