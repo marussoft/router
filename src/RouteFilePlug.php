@@ -57,7 +57,7 @@ class RouteFilePlug
         }
         
         if (is_string($this->aliases[$routesFileName]) === false) {
-            throw new RouteFileAliasIsNotStringException($routesFileName, get_type($this->aliases[$routesFileName]));
+            throw new RouteFileAliasIsNotStringException($routesFileName, gettype($this->aliases[$routesFileName]));
         }
         return $this->aliases[$routesFileName];
     }
