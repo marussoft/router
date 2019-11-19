@@ -15,9 +15,9 @@ class UrlGenerator extends AbstractRouteHandler
 
     private $route;
 
-    public function __construct(Route $route)
+    public function __construct(RouteFilePlug $routeFilePlug)
     {
-        $this->route = $route;
+        $this->routeFilePlug = $routeFilePlug;
     }
 
     public function match() : void
@@ -38,7 +38,7 @@ class UrlGenerator extends AbstractRouteHandler
 
         $segments = explode('.', $this->requiredName);
 
-        $this->route->plug($segments[0]);
+        $this->routeFilePlug->plug($segments[0]);
 
         if (is_null($this->matched)) {
             throw new RouteIsNotFoundForNameException($routeName);

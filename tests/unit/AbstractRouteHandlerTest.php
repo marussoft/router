@@ -19,12 +19,24 @@ class AbstractRouteHandlerTest extends TestCase
         $this->assertEquals('([0-9]+)', $routeHandler->getPlaceholderRegExp('integer'));
     }
     
-    public function testHasPlaceholderType() : void
+    public function testHasIntegerPlaceholderType() : void
     {
         $routeHandler = self::routeHandler();
-        $this->assertIsBool($routeHandler->hasPlaceholderType('integer'));
+        $this->assertTrue($routeHandler->hasPlaceholderType('integer'));
     }
 
+    public function testHasStringPlaceholderType() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertTrue($routeHandler->hasPlaceholderType('string'));
+    }
+    
+    public function testHasArrayPlaceholderType() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertTrue($routeHandler->hasPlaceholderType('array'));
+    }
+    
     public function testRoute(): void
     {
         $routeHandler = self::routeHandler();

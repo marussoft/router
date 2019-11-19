@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
+use Marussia\Router\Exceptions\RouterIsNotInitializedException;
+
 class Url
 {
     private static $uriGenerator = null;
@@ -16,7 +18,7 @@ class Url
     public static function get(string $routeName, array $params = [], string $lang = '') : string
     {
         if (is_null(static::$uriGenerator)) {
-            throw new \Exception('Router is not initialized');
+            throw new RouterIsNotInitializedException();
         }
 
         Route::setHandler(static::$uriGenerator);

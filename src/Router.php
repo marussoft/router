@@ -10,15 +10,13 @@ class Router
 {
     private $resolver;
 
-    private $mapper;
-
+    private $request;
+    
     private $routeFilePlug;
 
     public function __construct(Resolver $resolver, UrlGenerator $urlGenerator, Mapper $mapper, Request $request, RouteFilePlug $routeFilePlug)
     {
         $this->resolver = $resolver;
-        $this->mapper = $mapper;
-        $this->urlGenerator = $urlGenerator;
         $this->request = $request;
         $this->routeFilePlug = $routeFilePlug;
         Route::setHandler($mapper);
@@ -38,6 +36,12 @@ class Router
         return $this;
     }
 
+    public function setRoutesAliases(array $aliases) : self
+    {
+        $this->routeFilePlug->setRoutesAliases($aliases);
+        return $this;
+    }
+    
     public function setLanguages(array $languages) : self
     {
         $this->resolver->setLanguages($languages);

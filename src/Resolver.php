@@ -24,8 +24,6 @@ class Resolver
 
     private const ATTRIBUTE_ARRAY_DELIMITER = '/';
 
-    private const ROUTE_DEFAULT_FILE = 'default';
-
     public function __construct(Mapper $mapper, Request $request, RouteFilePlug $routeFilePlug, Result $result)
     {
         $this->mapper = $mapper;
@@ -44,25 +42,29 @@ class Resolver
             $this->result->language = $this->prepareLanguage();
         }
 
-        if ($this->uri === '/' or count($this->segments) === 0) {
-            $this->routeFilePlug->plug(self::ROUTE_DEFAULT_FILE);
-        } else {
-            $this->routeFilePlug->plug($this->segments[0]);
-        }
+        $this->plugRoutes();
 
         return $this->buildResult();
     }
 
-    public function setLanguages(array $languages = []) : self
+    public function setLanguages(array $languages = []) : void
     {
         $this->languages = $languages;
-        return $this;
     }
 
+    private function plugRoutes() : void
+    {
+        if ($this->uri === '/' or count($this->segments) === 0) {
+            $this->routeFilePlug->plugDefault();
+        } else {
+            $this->routeFilePlug->plug($this->segments[0]);
+        }
+    }
+    
     private function buildResult() : Result
     {
         if (!$this->mapper->isMatched()) {
-            return $this->result->status = false;
+            return $this->result;
         }
 
         $matched = $this->mapper->getMatched();
