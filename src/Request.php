@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Contracts\RequestInterface;
-
-class Request implements RequestInterface
+class Request
 {
     private $method;
 
