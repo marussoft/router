@@ -9,15 +9,19 @@ use Marussia\Router\Exceptions\RouteIsNotFoundForNameException;
 use Marussia\Router\Exceptions\PlaceholderIsNotFoundForRouteException;
 use Marussia\Router\Exceptions\PlaceholdersParamsIsNotFoundException;
 
-class UrlGenerator extends AbstractRouteHandler
+class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
 {
-    private $requiredName;
+    protected $requiredName;
 
-    private $route;
+    protected $route;
+    
+    protected $request;
 
-    public function __construct(RouteFilePlug $routeFilePlug)
+    public function __construct(RouteFilePlug $routeFilePlug, Request $request)
     {
         $this->routeFilePlug = $routeFilePlug;
+        
+        $this->request = $request;
     }
 
     public function match() : void

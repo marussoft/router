@@ -7,7 +7,6 @@ namespace Marussia\Router;
 use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
 use Marussia\Router\Exceptions\HandlerIsNotSetException;
 use Marussia\Router\Exceptions\ActionIsNotSetException;
-use Marussia\Router\Contracts\RequestInterface;
 
 abstract class AbstractRouteHandler
 {
