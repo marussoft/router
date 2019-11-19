@@ -13,10 +13,22 @@ use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
 
 class AbstractRouteHandlerTest extends TestCase
 {
-    public function testGetPlaceholderRegExp() : void
+    public function testGetIntegerPlaceholderRegExp() : void
     {
         $routeHandler = self::routeHandler();
         $this->assertEquals('([0-9]+)', $routeHandler->getPlaceholderRegExp('integer'));
+    }
+    
+    public function testGetStringPlaceholderRegExp() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertEquals('([a-z0-9\-]+)', $routeHandler->getPlaceholderRegExp('string'));
+    }
+    
+    public function testGetArrayPlaceholderRegExp() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertEquals('([a-z0-9]+)/(([a-z0-9\-]+/)+|([a-z0-9\-_]+)+)($)', $routeHandler->getPlaceholderRegExp('array'));
     }
     
     public function testHasIntegerPlaceholderType() : void
