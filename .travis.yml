@@ -11,5 +11,6 @@ branches:
 
 before_script:
   - composer install
+  - chmod +x phpunit
 
 script: ./phpunit
