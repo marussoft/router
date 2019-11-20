@@ -13,6 +13,42 @@ use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
 
 class AbstractRouteHandlerTest extends TestCase
 {
+    public function testGetIntegerPlaceholderRegExp() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertEquals('([0-9]+)', $routeHandler->getPlaceholderRegExp('integer'));
+    }
+    
+    public function testGetStringPlaceholderRegExp() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertEquals('([a-z0-9\-]+)', $routeHandler->getPlaceholderRegExp('string'));
+    }
+    
+    public function testGetArrayPlaceholderRegExp() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertEquals('([a-z0-9]+)/(([a-z0-9\-]+/)+|([a-z0-9\-_]+)+)($)', $routeHandler->getPlaceholderRegExp('array'));
+    }
+    
+    public function testHasIntegerPlaceholderType() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertTrue($routeHandler->hasPlaceholderType('integer'));
+    }
+
+    public function testHasStringPlaceholderType() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertTrue($routeHandler->hasPlaceholderType('string'));
+    }
+    
+    public function testHasArrayPlaceholderType() : void
+    {
+        $routeHandler = self::routeHandler();
+        $this->assertTrue($routeHandler->hasPlaceholderType('array'));
+    }
+    
     public function testRoute(): void
     {
         $routeHandler = self::routeHandler();

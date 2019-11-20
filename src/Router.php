@@ -5,39 +5,40 @@ declare(strict_types=1);
 namespace Marussia\Router;
 
 use Marussia\DependencyInjection\Container;
-use Marussia\Router\Contracts\RequestInterface;
 
 class Router
 {
     private $resolver;
-    
-    private $mapper;
 
-    public function __construct(Resolver $resolver, UrlGenerator $urlGenerator, Mapper $mapper)
+    private $request;
+    
+    private $routeFilePlug;
+
+    public function __construct(Resolver $resolver, UrlGenerator $urlGenerator, Mapper $mapper, Request $request, RouteFilePlug $routeFilePlug)
     {
         $this->resolver = $resolver;
-        $this->mapper = $mapper;
-        $this->urlGenerator = $urlGenerator;
+        $this->request = $request;
+        $this->routeFilePlug = $routeFilePlug;
+        Route::setHandler($mapper);
         Url::setUrlGenerator($urlGenerator);
     }
-    
+
     public static function create(string $uri, string $method, string $host, string $protocol = 'http') : self
     {
         $container = Container::create();
-        $request = $container->instance(Request::class, [$uri, $method, $host, $protocol]);
-        return $container->instance(static::class)->setRequest($request);
+        $container->instance(Request::class, [$uri, $method, $host, $protocol]);
+        return $container->instance(static::class);
     }
-    
+
     public function setRoutesDirPath(string $dirPath) : self
     {
-        Route::setRoutesDirPath($dirPath);
+        $this->routeFilePlug->setRoutesDirPath($dirPath);
         return $this;
     }
-    
-    public function setRequest(RequestInterface $request) : self
+
+    public function setRoutesAliases(array $aliases) : self
     {
-        $this->resolver->setRequest($request);
-        $this->urlGenerator->setRequest($request);
+        $this->routeFilePlug->setRoutesAliases($aliases);
         return $this;
     }
     
@@ -46,10 +47,9 @@ class Router
         $this->resolver->setLanguages($languages);
         return $this;
     }
-    
+
     public function startRouting() : Result
     {
         return $this->resolver->resolve();
     }
-
 }

@@ -27,6 +27,10 @@ class Mapper extends AbstractRouteHandler implements RouteHandlerInterface
         // @todo добавить проверку на существование плейсхолдера с выбросом исключения
         if (!empty($this->fillable['where'])) {
             foreach($this->fillable['where'] as $key => $condition) {
+                if ($this->hasPlaceholderType($condition)) {
+                    $pattern = str_replace('{$' . $key . '}', $this->getPlaceholderRegExp($condition), $pattern);
+                    continue;
+                }
                 $pattern = str_replace('{$' . $key . '}', $condition, $pattern);
             }
         }

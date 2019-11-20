@@ -7,7 +7,6 @@ namespace Marussia\Router;
 use Marussia\Router\Exceptions\PlaceholdersForPatternNotFoundException;
 use Marussia\Router\Exceptions\HandlerIsNotSetException;
 use Marussia\Router\Exceptions\ActionIsNotSetException;
-use Marussia\Router\Contracts\RequestInterface;
 
 abstract class AbstractRouteHandler
 {
@@ -17,6 +16,23 @@ abstract class AbstractRouteHandler
     
     protected $fillable = [];
 
+    protected $attributeTypes = [
+        'STRING' => '([a-z0-9\-]+)',
+        'INTEGER' => '([0-9]+)',
+        'ARRAY' => '([a-z0-9]+)/(([a-z0-9\-]+/)+|([a-z0-9\-_]+)+)($)',
+    ];
+    
+    const PLACEHOLDER_TYPE_STRING = 'STRING';
+
+    const PLACEHOLDER_TYPE_INTEGER = 'INTEGER';
+
+    const PLACEHOLDER_TYPE_ARRAY = 'ARRAY';
+    
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+    
     public function route(string $method, string $pattern) : self
     {
         if (!is_null($this->matched)) {
@@ -84,14 +100,14 @@ abstract class AbstractRouteHandler
         return true;
     }
     
-    public function setRequest(RequestInterface $request)
+    public function getPlaceholderRegExp(string $type) : string
     {
-        $this->request = $request;
+        return $this->attributeTypes[strtoupper($type)];
     }
-    
-    public function __call(string $name , array $arguments = []) : self
+
+    public function hasPlaceholderType(string $type) : bool
     {
-        return $this;
+        return array_key_exists(strtoupper($type), $this->attributeTypes);
     }
     
     protected function checkErrors() : void

@@ -12,18 +12,24 @@ class Resolver
 
     private $request;
 
+    private $routeFilePlug;
+
     private $segments = [];
 
     private $matched;
 
-    private $languages =[];
+    private $languages = [];
 
-    private $currentLanguage;
+    private $result;
 
-    public function __construct(Mapper $mapper)
+    private const ATTRIBUTE_ARRAY_DELIMITER = '/';
+
+    public function __construct(Mapper $mapper, Request $request, RouteFilePlug $routeFilePlug, Result $result)
     {
         $this->mapper = $mapper;
-        Route::setHandler($mapper);
+        $this->request = $request;
+        $this->routeFilePlug = $routeFilePlug;
+        $this->result = $result;
     }
 
     public function resolve() : Result
@@ -32,60 +38,56 @@ class Resolver
 
         $this->segments = explode('/', $this->uri);
 
-        if (!empty($this->languages)) {
-            $this->prepareLanguage();
+        if (count($this->languages) > 0) {
+            $this->result->language = $this->prepareLanguage();
         }
 
-        $this->prepareRoutes();
+        $this->plugRoutes();
 
         return $this->buildResult();
     }
 
-    public function setRequest(RequestInterface $request) : void
-    {
-        $this->request = $request;
-        $this->mapper->setRequest($request);
-    }
-
-    public function setLanguages(array $languages = []) : self
+    public function setLanguages(array $languages = []) : void
     {
         $this->languages = $languages;
-        return $this;
     }
 
+    private function plugRoutes() : void
+    {
+        if ($this->uri === '/' or count($this->segments) === 0) {
+            $this->routeFilePlug->plugDefault();
+        } else {
+            $this->routeFilePlug->plug($this->segments[0]);
+        }
+    }
+    
     private function buildResult() : Result
     {
         if (!$this->mapper->isMatched()) {
-            return Result::create(false);
+            return $this->result;
         }
 
         $matched = $this->mapper->getMatched();
 
-        $result = Result::create(true);
-        $result->handler = $matched->handler;
-        $result->action = $matched->action;
-        $result->language = $this->currentLanguage;
+        $this->result->status = true;
+        $this->result->handler = $matched->handler;
+        $this->result->action = $matched->action;
+
         if (!empty($matched->where)) {
             $where = $this->prepareWhere($matched->where, $matched->pattern);
-            $result->attributes = $this->assignAttributes($where, $matched->pattern);
-        }
-        return $result;
-    }
-
-    private function prepareRoutes() : void
-    {
-        if (empty($this->uri) or $this->uri === '/' or empty($this->segments)) {
-            Route::plug();
-            return;
+            $attributesTypesMap = $this->prepareTypes($matched->where);
+            $this->result->attributes = $this->assignAttributes($where, $matched->pattern, $attributesTypesMap);
         }
 
-        Route::plug($this->segments[0]);
+        return $this->result;
     }
 
-    private function prepareLanguage()
+    private function prepareLanguage() : string
     {
+        $currentLanguage = '';
+
         if (array_search($this->segments[0], $this->languages, true) !== false) {
-            $this->currentLanguage = array_shift($this->segments);
+            $currentLanguage = array_shift($this->segments);
         }
 
         $uri = trim(str_replace($this->languages, '', $this->uri), '/');
@@ -94,21 +96,20 @@ class Resolver
             $uri = '/';
         }
 
-        $this->request->setUri($uri);
+        $this->request->replaceUri($uri);
+
+        return $currentLanguage;
     }
 
-    private function assignAttributes(array $where, string $pattern) : array
+    private function assignAttributes(array $where, string $pattern, array $attributesTypesMap) : array
     {
-        $attributes = [];
+        $rawAttributes = [];
 
         $uri = $this->request->getUri();
 
-        while (key($where) !== null) {
-            $pattern = str_replace('{$' . key($where) . '}', ' ', $pattern);
-            next($where);
-        }
+        $patternWithoutPlaceholders = $this->clearPlaceholdersInPattern($where, $pattern);
 
-        $segments = explode(' ', $pattern);
+        $segments = explode(' ', trim($patternWithoutPlaceholders, ' '));
 
         foreach ($where as $key => $value) {
 
@@ -118,32 +119,108 @@ class Resolver
 
             $delimiter = substr($value, 0, 1) === '(' ? ')' : substr($value, 0, 1);
 
-            $withNeedless = substr($value, 0, -1) . preg_quote($segments[0]) . $delimiter;
+            $segmentPattern = $this->makePattern($segments, $delimiter, $value);
 
-            preg_match($withNeedless, $uri, $matched);
+            preg_match($segmentPattern, $uri, $matched);
 
-            $rawAttributes[$key] = substr($matched[0], 0, -(strlen(current($segments))));
+            if (empty($segments)) {
+                $rawAttributes[$key] = $matched[0];
+            } else {
+                $rawAttributes[$key] = substr($matched[0], 0, -(strlen(current($segments))));
+            }
 
             $uri = substr($uri, strlen($rawAttributes[$key]));
         }
 
-        foreach ($rawAttributes as $key => $value) {
-            $attributes[$key] = is_numeric($value) ? intval($value) : $value;
-        }
+        return $this->typeСonversion($rawAttributes, $attributesTypesMap);
+    }
 
-        return $attributes;
+    private function clearPlaceholdersInPattern(array $where, string $pattern)
+    {
+        while (key($where) !== null) {
+            $pattern = str_replace('{$' . key($where) . '}', ' ', $pattern);
+            next($where);
+        }
+        return $pattern;
+    }
+
+    private function makePattern(array $segments, string $delimiter, string $whereValue) : string
+    {
+        if (isset($segments[0]) === false) {
+            return substr($whereValue, 0, -1) . $delimiter;
+        }
+        return substr($whereValue, 0, -1) . preg_quote($segments[0]) . $delimiter;
     }
 
     private function prepareWhere(array $where, string $pattern) : array
     {
-        preg_match_all('(\{\$[a-z]+\})', $pattern, $matched, PREG_SET_ORDER);
+        preg_match_all('(\{\$[a-zA-Z]+\})', $pattern, $matched, PREG_SET_ORDER);
+
+        $sortedWhere = [];
 
         foreach ($matched as $value) {
 
             $placeHolder = substr($value[0], 2, -1);
+
+            if ($this->mapper->hasPlaceholderType($where[$placeHolder])) {
+                $sortedWhere[$placeHolder] = $this->mapper->getPlaceholderRegExp($where[$placeHolder]);
+                continue;
+            }
+
             $sortedWhere[$placeHolder] = $where[$placeHolder];
         }
 
         return $sortedWhere;
+    }
+
+    private function prepareTypes(array $where) : array
+    {
+        $attributesTypesMap = [];
+
+        foreach ($where as $placeHolder => $value) {
+
+            if ($this->mapper->hasPlaceholderType($value) === false) {
+                continue;
+            }
+
+            if (strtoupper($value) === Mapper::PLACEHOLDER_TYPE_INTEGER) {
+                $attributesTypesMap[$placeHolder] = Mapper::PLACEHOLDER_TYPE_INTEGER;
+                continue;
+            }
+
+            if (strtoupper($value) === Mapper::PLACEHOLDER_TYPE_ARRAY) {
+                $attributesTypesMap[$placeHolder] = Mapper::PLACEHOLDER_TYPE_ARRAY;
+            }
+        }
+
+        return $attributesTypesMap;
+    }
+
+    private function typeСonversion(array $rawAttributes, array $attributesTypesMap) : array
+    {
+        $attributes = [];
+
+        if (empty($attributesTypesMap)) {
+            return $rawAttributes;
+        }
+
+        foreach ($rawAttributes as $placeHolder => $value) {
+
+            if (array_key_exists($placeHolder, $attributesTypesMap) === false) {
+                $attributes[$placeHolder] = $value;
+                continue;
+            }
+
+            if ($attributesTypesMap[$placeHolder] === Mapper::PLACEHOLDER_TYPE_INTEGER) {
+                $attributes[$placeHolder] = intval($value);
+                continue;
+            }
+
+            if ($attributesTypesMap[$placeHolder] === Mapper::PLACEHOLDER_TYPE_ARRAY) {
+                $attributes[$placeHolder] = explode(self::ATTRIBUTE_ARRAY_DELIMITER, $value);
+            }
+        }
+
+        return $attributes;
     }
 }

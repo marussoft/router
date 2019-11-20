@@ -15,14 +15,4 @@ class Result
     public $attributes = [];
     
     public $language = '';
-    
-    public function __construct(bool $status)
-    {
-        $this->status = $status;
-    }
-    
-    public static function create(bool $status) : self
-    {
-        return new static($status);
-    }
 }
