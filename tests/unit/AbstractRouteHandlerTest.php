@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Marussia\Router\Test;
 
+use Mockery;
 use PHPUnit\Framework\TestCase;
+use Marussia\Router\Request;
 use Marussia\Router\AbstractRouteHandler;
 use Marussia\Router\MatchedRoute;
 use Marussia\Router\Exceptions\HandlerIsNotSetException;
@@ -177,7 +179,8 @@ class AbstractRouteHandlerTest extends TestCase
 
     private static function routeHandler(): RouteHandler
     {
-        return new RouteHandler();
+        $request = Mockery::mock(Request::class);
+        return new RouteHandler($request);
     }
 
     private static function matchedRoute(): MatchedRoute
