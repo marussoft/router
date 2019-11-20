@@ -11,7 +11,7 @@ class ResultTest extends TestCase
 {
     public function testStatus(): void
     {
-        $this->assertTrue(self::result()->status);
+        $this->assertFalse(self::result()->status);
     }
 
     public function testAction(): void
@@ -29,8 +29,8 @@ class ResultTest extends TestCase
         $this->assertEquals('', self::result()->language);
     }
 
-    private static function result(bool $status = true): Result
+    private static function result(): Result
     {
-        return Result::create($status);
+        return new Result;
     }
 }
