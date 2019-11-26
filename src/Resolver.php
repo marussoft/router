@@ -20,7 +20,7 @@ class Resolver
 
     private $result;
 
-    private $url;
+    private $uri;
 
     private const ATTRIBUTE_ARRAY_DELIMITER = '/';
 
