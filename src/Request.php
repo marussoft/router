@@ -10,6 +10,10 @@ class Request
 
     private $uri = '/';
 
+    private $host;
+
+    private $protocol;
+
     public function __construct(string $uri, string $method, string $host, string $protocol)
     {
         $this->method = strtoupper($method);

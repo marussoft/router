@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Marussia\Router;
 
-use Marussia\Router\Contracts\RequestInterface;
-
 class Resolver
 {
     private $mapper;
@@ -21,6 +19,8 @@ class Resolver
     private $languages = [];
 
     private $result;
+
+    private $url;
 
     private const ATTRIBUTE_ARRAY_DELIMITER = '/';
 
@@ -60,7 +60,7 @@ class Resolver
             $this->routeFilePlug->plug($this->segments[0]);
         }
     }
-    
+
     private function buildResult() : Result
     {
         if (!$this->mapper->isMatched()) {

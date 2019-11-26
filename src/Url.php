@@ -8,7 +8,7 @@ use Marussia\Router\Exceptions\RouterIsNotInitializedException;
 
 class Url
 {
-    private static $uriGenerator = null;
+    protected static $uriGenerator = null;
 
     public static function setUrlGenerator(UrlGenerator $uriGenerator)
     {

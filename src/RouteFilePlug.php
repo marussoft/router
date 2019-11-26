@@ -10,9 +10,9 @@ use Marussia\Router\Exceptions\RouteFileAliasIsNotStringException;
 class RouteFilePlug
 {
     private $routesDirPath;
-    
+
     private $aliases = [];
-    
+
     private const ROUTE_DEFAULT_FILE_NAME = 'default';
 
     public function setRoutesDirPath(string $routesDirPath) : void
@@ -25,27 +25,27 @@ class RouteFilePlug
         $this->aliases = $aliases;
     }
 
-    
+
     public function plug(string $routesFileName) : void
     {
         if (empty($this->routesDirPath)) {
-            throw new RoutesDirPathIsNotSetException('Routes directory path is not set');
+            throw new RoutesDirPathIsNotSetException();
         }
-        
+
         $routesFileName = $this->prepareFileAlias($routesFileName);
-        
+
         if (is_file($this->routesDirPath . $routesFileName . '.php') === false) {
             $this->plugDefault();
             return;
         }
-        
+
         require $this->routesDirPath . $routesFileName . '.php';
     }
-    
+
     public function plugDefault() : void
     {
         if (empty($this->routesDirPath)) {
-            throw new RoutesDirPathIsNotSetException('Routes directory path is not set');
+            throw new RoutesDirPathIsNotSetException();
         }
         require $this->routesDirPath . self::ROUTE_DEFAULT_FILE_NAME . '.php';
     }
@@ -55,7 +55,7 @@ class RouteFilePlug
         if (isset($this->aliases[$routesFileName]) === false) {
             return $routesFileName;
         }
-        
+
         if (is_string($this->aliases[$routesFileName]) === false) {
             throw new RouteFileAliasIsNotStringException($routesFileName, gettype($this->aliases[$routesFileName]));
         }

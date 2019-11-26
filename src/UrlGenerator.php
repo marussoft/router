@@ -14,13 +14,15 @@ class UrlGenerator extends AbstractRouteHandler implements RouteHandlerInterface
     protected $requiredName;
 
     protected $route;
-    
+
     protected $request;
+
+    protected $routeFilePlug;
 
     public function __construct(RouteFilePlug $routeFilePlug, Request $request)
     {
         $this->routeFilePlug = $routeFilePlug;
-        
+
         $this->request = $request;
     }
 

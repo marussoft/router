@@ -8,9 +8,9 @@ use Marussia\Router\Contracts\RouteHandlerInterface;
 
 class Route
 {
-    private static $handler = null;
+    protected static $handler = null;
 
-    private static $routesDirPath = '';
+    protected static $routesDirPath = '';
 
     public static function setHandler(RouteHandlerInterface $handler)
     {
