@@ -4,7 +4,7 @@
 ![](https://scrutinizer-ci.com/g/marussoft/router/badges/quality-score.png?b=master)
 ![](https://scrutinizer-ci.com/g/marussoft/router/badges/code-intelligence.svg?b=master)
 
-## Роутер позволяет прописывать маршруты для приложений вида:
+## Роутер позволяет определять маршруты для приложения вида:
 
 `Route::get('/categories/edit/{$id}')->where(['id' => 'integer'])->handler('Catalog')->action('CategoryEdit')->name('category.edit')->match();`
 
